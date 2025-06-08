@@ -139,7 +139,6 @@ We will develop a modular Shiny web app to convert the static knowledge graph in
 -   **Algorithm:**
 
     -   Identify pseudonyms via string detection, co-use clustering
-
     -   Infer multi-usage by examining shared communication patterns
 
 -   **Visualization:**
@@ -157,55 +156,133 @@ We will develop a modular Shiny web app to convert the static knowledge graph in
 -   **Backend:**
 
     -   Apply Louvain clustering to full entity graph
-
     -   Tag clusters with dominant communication themes (NLP topic tagging or keyword extraction)
 
 -   **Visualization:**
 
     -   Faceted layout by cluster: each showing node graph + summary
-
     -   Bar chart of top topics per group
-
     -   Hover tooltips to explain inter-group bridges (e.g., actors linking Sailor Shift’s crew with Green Guardians)
 
 -   **Module E: Nadia Conti Activity Tracker**
 
 **Goal:** Gather and visualize evidence of Nadia’s potential wrongdoing.
 
--   
-
 -   **Input:** All messages involving or referring to Nadia or her aliases
-
--   
-
 -   **Backend:**
-
-    -   
-
     -   Create Nadia subgraph: direct links, pseudonym usage, temporal footprint
-
-    -   
-
     -   Compute abnormal communication patterns vs. baseline
-
-    -   
-
--   
-
 -   **Visualization:**
-
-    -   
-
     -   Timeline of Nadia's communications: who, when, and topic
-
-    -   
 
     -   Highlight high-risk pseudonym periods or clandestine approvals
 
-    -   
-
     -   Summary insight box: “Evidence Level: Moderate/Strong/None”
 
-    -   
+## **5. Expected Features**
 
--   
+-   Fully interactive **network graph** with edge filters (time, entity, topic)
+-   Dynamic search for people, vessels, or pseudonyms
+-   Side panels showing metadata and inferred roles
+-   Downloadable visual summaries
+-   Storyboarding feature: Clepper can save key frames or views for investigation reports
+
+## **6. Early Wireframe Sketches and User Flow**
+
+**🔹 6.1 Home (Overview & Narrative Context)**
+
+-   **Purpose:** Anchor the user with contextual background and investigative framing.
+
+-   **Components:**
+
+    -   Short narrative summary with quote from Clepper
+    -   Optional **interactive map of Oceanus** (for future enhancement)
+    -   Infoboxes showing key facts (e.g., number of entities, time span, known pseudonyms)
+    -   Navigation buttons or sidebar leading to investigative tabs
+
+-   **Value:** Orients the user to the setting and stakes of the case; sets an investigative tone.
+
+**🔹 6.2 Timeline Explorer Tab**
+
+-   **Purpose:** Uncover **daily and hourly communication patterns** across the two-week observation window.
+
+-   **Components:**
+
+    -    📅 **Heatmap**: Date × Hour grid showing communication intensity
+    -   📈 **Line charts**: Message frequency over time (overall or by entity/group)
+    -   🔎 **Interactive filters**: Select entity type (people, vessels), specific names, or keyword topics
+    -   🧭 Timeline brushing: Zoom in on specific dates to transition into more detailed tab
+
+-   **Value:** Highlights coordination patterns and anomalies
+
+**🔹 6.3 Influence Drilldown Tab**
+
+-   **Purpose:** Map out **who holds power**, and how they influence others within the knowledge graph.
+
+-   **Components:**
+
+    -   🕸️ **Interactive visNetwork graph**:
+        -   Nodes sized by centrality (influence)
+
+        -   Directed edges colored by topic category (e.g., environmental, celebrity, logistics)
+    -   🔁 Switch view: “Inbound” vs. “Outbound” influence
+    -   📊 Side panel: Top 5 influencers, ego network for selected entity
+    -   🗂️ Entity profile card: When clicked, show timeline of messages, role type, key connection
+
+-   **Value:** Supports influence tracing and actor prioritization, especially for figures like Sailor Shift, conservation leaders, and anonymous bureaucrats.
+
+**🔹 6.4 Pseudonym Tracker Tab**
+
+-   **Purpose:** Detect and decode the use of **aliases and multi-identity patterns**.
+
+-   **Components:**
+
+    -   👤 Alias network: Links pseudonyms to likely real-world identities based on co-activity
+    -   🧬 Shared pseudonym highlighting (multiple entities using “Boss” at different hours)
+    -   📅 Pseudonym timeline: Track when and how often each alias was used
+    -   🛠️ Optional toggle: Show/hide pseudonyms in other tabs (global control)
+
+-   **Value:** Aids in exposing hidden actors and strengthens the foundation for behavioral de-anonymization.
+
+**🔹 6.5 Community & Topic Cluster Tab**
+
+-   **Purpose:** Visualize **thematic groupings** and entity communities within the network.
+
+-   **Components:**
+
+    -   🧠 Clustered graph layout (Louvain or Walktrap output)
+    -   🎨 Color-coded communities with legend (e.g., Green = Environmentalists, Blue = Leisure Vessels)
+    -   📚 Wordcloud or bar chart: Top keywords or message themes per group
+    -   🔗 Bridge node detection: Show entities linking multiple clusters
+
+-   **Value:** Supports exploratory investigation into potential collaboration or conflict between stakeholder groups.
+
+**🔹 6.6 Nadia Conti Case Dashboard**
+
+-   **Purpose:** Build a **narrative case file** centered around Nadia Conti.
+
+-   **Components:**
+
+    -   🔍 Nadia’s entity profile + aliases
+    -    📊 Summary panel: Activity volume, indirect connections, known pseudonyms
+    -   ⏳ Timeline view: Messages involving or referencing Nadia
+    -   🧩 Inference section: Summary of potential illicit actions or suspicious interactions
+
+-   **Value:** Synthesizes cross-tab insights to evaluate the core investigative hypothesis: *Is Nadia still engaging in illegal activity?*
+
+**🔹 6.7 (Optional) Evidence Builder Tab**
+
+-   **Purpose:** Enable Clepper or the user to **export selected visuals and insights** for report writing or news publishing.
+-   **Components:**
+    -    📌 Bookmark key views from any tab
+    -   📝 Generate narrative summaries or “case snapshots”
+    -   📤 Export PDF/PNG visuals
+-   **Value:** Supports storytelling, publication, or handover to law enforcement or editorial teams.
+
+## **8. Conclusion** 
+
+This project proposes a purpose-built, investigative visual analytics application designed to illuminate the hidden relationships, pseudonym usage, and potential corruption embedded in the Oceanus radio communication dataset. By combining interactive graph-based exploration with temporal and entity-level analysis, the tool enables investigative users like Clepper Jessen to transition from static information to dynamic, evidence-based storytelling.
+
+Beyond solving the specific case of Nadia Conti and the suspicious activity around Nemo Reef, this application demonstrates how visual analytics can serve as a powerful ally in data-driven journalism, enabling the detection of influence, identity masking, and organized behaviour in semi-structured communications. Its modular design ensures adaptability for future investigative contexts, whether in civic watchdog efforts, environmental intelligence, or geopolitical monitoring.
+
+Ultimately, this project aligns with the broader goal of democratizing data and analytics, offering a transparent and intuitive interface for domain experts to extract actionable insights from complex knowledge graphs — and to do so without requiring technical expertise in coding or graph theory.

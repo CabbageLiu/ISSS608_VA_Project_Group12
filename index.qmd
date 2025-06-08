@@ -1,6 +1,7 @@
 ---
 title: "ISSS608 Visual Analytics Project: Group 12"
 date-modified: "last-modified"
+authors: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
 format: html
 editor: visual
 execute: 
@@ -10,4 +11,4 @@ execute:
   freeze: true      #speed up rendering time
 ---
 
-Hello world
+![](pictures/image.png)

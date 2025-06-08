@@ -1,12 +1,5 @@
 [
   {
-    "objectID": "project_proposal/project_proposal.html",
-    "href": "project_proposal/project_proposal.html",
-    "title": "Project Proposal",
-    "section": "",
-    "text": "Hi testing"
-  },
-  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
@@ -14,11 +7,11 @@
     "text": "About this site\n\n1 + 1\n\n[1] 2"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "ISSS608 Visual Analytics Project: Group 12",
+    "objectID": "project_proposal/project_proposal.html",
+    "href": "project_proposal/project_proposal.html",
+    "title": "Project Proposal",
     "section": "",
-    "text": "Hello world"
+    "text": "Hi testing"
   },
   {
     "objectID": "project_proposal/Proposal_DC.html",

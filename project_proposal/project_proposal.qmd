@@ -1,5 +1,18 @@
 ---
 title: "Project Proposal"
+description: ""
+author: "Lui Chih Yuan, David Chiam, Enrico Sebastian"
+date: "8 June 2025"
+date-modified: "8 June 2025"
+format:
+  html: 
+    code-fold: true
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
 ---
 
 Hi testing

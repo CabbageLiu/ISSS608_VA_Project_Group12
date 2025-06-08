@@ -1,0 +1,211 @@
+---
+title: "Proposal"
+description: ""
+author: "Lui Chih Yuan, David Chiam, Enrico Sebastian"
+date: "8 June 2025"
+date-modified: "8 June 2025"
+format:
+  html: 
+    code-fold: true
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# **Unmasking Influence: Investigating Power, Pseudonyms, and Corruption in Oceanus**
+
+## **1. Introduction**
+
+*"When you have eliminated the impossible, whatever remains, however improbable, must be the truth."* \
+— Sherlock Holmes
+
+They call it paradise. Oceanus — a remote island once known for its fishing heritage — now hosts yacht parties, drone shoots, and conservation protests. But for me, Clepper Jessen, it’s something else entirely: **a mystery waiting to be unravelled**.
+
+Two weeks ago, something changed. Nemo Reef was abruptly shut down. Sailor Shift’s glamorous arrival was followed by a sudden storm of encrypted radio chatter, midnight movements, and fast-tracked approvals. Names I thought were long gone began to reappear — only this time, hidden behind pseudonyms like *“The Boss”* and *“The Lookout.”*
+
+With my intern, I intercepted and parsed every message I could get my hands on. But a pile of transcripts, no matter how detailed, is like a thousand-piece puzzle without the picture on the box. I needed a new tool — one that could **see what I couldn’t** and **connect what others wouldn’t**.
+
+That’s where this application comes in.
+
+This is no ordinary dashboard. It is an investigative lens — built to:
+
+-   Uncover **temporal anomalies** that hint at coordination,
+-   Trace **power and influence** through hidden networks,
+-   Decode **aliases** and reveal who’s hiding behind what name,
+-   Surface **clusters of collaboration**, dissent, or manipulation, and
+-   Piece together a case around suspects like **Nadia Conti**, whose past criminal ties may not be so past after all.
+
+With every filter I apply and every link I explore, I come closer to the truth.
+
+Oceanus wants to forget. My team is here to remember.
+
+##  **2. Motivation**
+
+Oceanus is at a crossroads. Once a tranquil fishing haven, it now stands as a microcosm of modern tension — a battleground between commercial tourism, environmental activism, and quiet corruption. The sudden influx of celebrities, bureaucrats, and shadowy middlemen has triggered suspicion, particularly after the abrupt closure of Nemo Reef.
+
+As an investigative journalist, I’ve seen patterns before. But this one? It’s tangled in layers of aliases, logistics, and unlikely partnerships. That’s why I needed a visual analytics tool — not just to **read the data**, but to **interrogate it**.
+
+This project is driven by a desire to **democratize investigative intelligence**. Through interactive and intuitive visuals, it empowers those like me — and anyone who seeks truth — to:
+
+-   Detect daily patterns that ordinary eyes miss,
+-   Follow the thread of influence across vessels, people, and organizations,
+-   Reveal pseudonyms and hold disguised actors accountable,
+-   Map out group behaviour and thematic alliances, and
+-   Collect visual evidence that separates fact from fabrication — especially in the case of **Nadia Conti**.
+
+Because data may tell a story. But *visual analytics* lets us **solve the case**.
+
+##  **3. Problem Statement**
+
+The intercepted radio communications have been transformed into a knowledge graph, capturing two weeks of activity between individuals, vessels, and organizations in Oceanus. Each node represents an entity, while edges represent relationships such as communication, approvals, or co-mentioning events. This knowledge graph also captures metadata like timestamps, topics, and pseudonyms.
+
+Clepper Jessen suspects that behind the benign front of ocean tourism lies an orchestrated effort involving corruption, covert coordination, and manipulation of identity. Our task is to convert this static graph into an interactive investigative tool that surfaces hidden patterns and supports journalistic inquiry.
+
+Investigative Problems include:
+
+🔸 **Temporal Anomalies & Daily Rhythms**\
+Messages cluster around the same time daily, suggesting **habitual or coordinated behaviour**. Tracking shifts over time may expose operational changes before and after critical events (e.g., the filming announcement).
+
+**Goal**: Uncover **periodic communication spikes**, shifts in timing patterns, and correlation to entity activity.
+
+🔸**Influence Mapping & Relationship Flows**\
+Power dynamics can be inferred from communication directionality and frequency. Entities like Sailor Shift, officials, and conservationists may be central nodes with high influence.
+
+**Goal**: Use **graph metrics** (e.g., betweenness, eigenvector centrality) to identify influencers and track their evolving roles.
+
+🔸**Group Affiliation & Topic Clustering**\
+Entities form **clusters** — such as the Green Guardians or celebrity entourages — based on shared contacts or themes. Group-specific topics and interaction patterns can reveal operational roles.
+
+**Goal**: Detect communities using clustering algorithms and associate them with dominant discussion themes (e.g., tourism logistics vs. environmental protests).
+
+🔸**Pseudonym Usage & Identity Masking**\
+Pseudonyms like “The Boss” or “The Lookout” conceal true identities and complicate accountability. Some aliases may be reused across actors or tied to specific event types.
+
+**Goal**: Identify **single or multi-user pseudonyms**, map their activity and cross-compare behaviourally with known entities to uncover deception.
+
+🔸**Evidence of Misconduct – Nadia Conti Focus**\
+Clepper believes Nadia Conti may be covertly operating under new identities or aliases. Her history with illegal fishing makes her a person of interest in new corruption schemes.
+
+**Goal**: Map Nadia’s **communication footprint**, link indirect relationships via pseudonyms, and surface anomalies suggesting concealment or collusion.
+
+## **4. Proposed Approach**
+
+We will develop a modular Shiny web app to convert the static knowledge graph into an interactive, investigative interface tailored to Clepper’s needs. Each module corresponds to a key problem statement.
+
+**Module A: Temporal Pattern Explorer**
+
+**Goal:** Visualize daily cycles and anomalies in communication frequency and topic intensity.
+
+-    **Input:** Message timestamp, sender, topic
+
+-    **Visualization:**
+
+    -   Heatmap (Hour of day × Day) showing volume of messages
+    -   Line chart overlay per sender/group (faceted if needed)
+    -   Interactive brush to zoom into specific dates/times
+
+-   **Additional Feature:** Compare activity of individual entities vs. global baseline
+
+**Module B: Entity Influence Dashboard**
+
+**Goal:** Reveal who influences whom across people, vessels, and organizations.
+
+-   **Input:** Entity-entity edges, directionality, frequency, topic weight
+
+-   **Backend:**
+
+    -   Compute centrality metrics (degree, betweenness, eigenvector)
+    -   Filter by direction, topic, or message count
+
+-   **Visualization:**
+
+    -   Interactive visNetwork graph with dynamic node sizing (influence) and colouring (group affiliation or topic)
+    -   Clickable entity profile cards that update to show:
+        -   Top connections
+
+        -   Communication timeline
+
+        -   Topics discussed
+
+**Module C: Pseudonym Tracker**
+
+**Goal:** Detect and decode pseudonym usage and role masking.
+
+-   **Input:** Entity-pseudonym mappings, message co-occurrence, behavioural similarity
+
+-   **Algorithm:**
+
+    -   Identify pseudonyms via string detection, co-use clustering
+
+    -   Infer multi-usage by examining shared communication patterns
+
+-   **Visualization:**
+
+    -   Node-link diagram with toggle between “real” and “alias” modes
+
+    -   Highlight shared aliases and suspicious handoffs of pseudonym identity
+
+    -   Textual summary of evidence linking alias to probable identity
+
+**Module D: Community & Topic Association**
+
+**Goal:** Uncover hidden group structures and topic themes.
+
+-   **Backend:**
+
+    -   Apply Louvain clustering to full entity graph
+
+    -   Tag clusters with dominant communication themes (NLP topic tagging or keyword extraction)
+
+-   **Visualization:**
+
+    -   Faceted layout by cluster: each showing node graph + summary
+
+    -   Bar chart of top topics per group
+
+    -   Hover tooltips to explain inter-group bridges (e.g., actors linking Sailor Shift’s crew with Green Guardians)
+
+-   **Module E: Nadia Conti Activity Tracker**
+
+**Goal:** Gather and visualize evidence of Nadia’s potential wrongdoing.
+
+-   
+
+-   **Input:** All messages involving or referring to Nadia or her aliases
+
+-   
+
+-   **Backend:**
+
+    -   
+
+    -   Create Nadia subgraph: direct links, pseudonym usage, temporal footprint
+
+    -   
+
+    -   Compute abnormal communication patterns vs. baseline
+
+    -   
+
+-   
+
+-   **Visualization:**
+
+    -   
+
+    -   Timeline of Nadia's communications: who, when, and topic
+
+    -   
+
+    -   Highlight high-risk pseudonym periods or clandestine approvals
+
+    -   
+
+    -   Summary insight box: “Evidence Level: Moderate/Strong/None”
+
+    -   
+
+-   

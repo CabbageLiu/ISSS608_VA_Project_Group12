@@ -2,9 +2,15 @@ project:
   type: website
 
 website:
-  title: "ISSS608_VA_Project_Group12"
+  title: "ISSS608 Visual Analytics Project"
   navbar:
     left:
+      - text: "Menu"
+        menu:
+        - text: "Project Proposal"
+          href: "project_proposal/project_proposal.qmd"
+    
+    right:
       - href: index.qmd
         text: Home
       - about.qmd

@@ -9,6 +9,8 @@ website:
         menu:
         - text: "Project Proposal"
           href: "project_proposal/project_proposal.qmd"
+        - text: "Project Proposal DC"
+          href: "project_proposal/proposal_DC.html"
         - text: "David Test"
           href: "Test_Folder/TestQuarto_David.html"
     

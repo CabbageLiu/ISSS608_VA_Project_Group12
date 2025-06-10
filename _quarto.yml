@@ -11,7 +11,8 @@ website:
           href: "project_proposal/proposal_DC.html"
         - text: "Test"
           href: "Test_Folder/TestQuarto_David.html"
-    
+        - text: "Test2"
+          href: "TH3/Take-Home_Ex02_MC3.html"
     right:
       - href: index.qmd
         text: Home

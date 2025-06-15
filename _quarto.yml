@@ -14,7 +14,9 @@ website:
         - text: "Test2"
           href: "TH3/Take-Home_Ex02_MC3.html"
         - text: "Adrian Task 4a & 4b"
-          href: "Test_Folder/adrian_test_q4/testing_q4.qmd"          
+          href: "Test_Folder/adrian_test_q4/testing_q4.qmd"   
+        - text: "Rico Task 3"
+          href: "Test_Folder/Rico_q3/Take Home Exercise 3.qmd"
     right:
       - href: index.qmd
         text: Home

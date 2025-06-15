@@ -13,6 +13,8 @@ website:
           href: "Test_Folder/TestQuarto_David.html"
         - text: "Test2"
           href: "TH3/Take-Home_Ex02_MC3.html"
+        - text: "Adrian Task 4a & 4b"
+          href: "Test_Folder/adrian_test_q4/testing_q4.qmd"          
     right:
       - href: index.qmd
         text: Home

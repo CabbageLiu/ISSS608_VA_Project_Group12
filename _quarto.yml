@@ -19,6 +19,8 @@ website:
           href: "Test_Folder/Rico_q3/Take Home Exercise 3.qmd"
         - text: "David Task 2"
           href: "Test_Folder/David_Q2/Take-Home_Ex02_MC3 - Q2.qmd"
+        - text: "Report Draft (Main)"
+          href: main_project_qmd/main_project_qmd/main.html
     right:
       - href: index.qmd
         text: Home

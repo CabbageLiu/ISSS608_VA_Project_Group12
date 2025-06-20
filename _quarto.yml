@@ -9,18 +9,8 @@ website:
         menu:
         - text: "Project Proposal"
           href: "project_proposal/proposal_DC.html"
-        - text: "Test"
-          href: "Test_Folder/TestQuarto_David.html"
-        - text: "Test2"
-          href: "TH3/Take-Home_Ex02_MC3.html"
-        - text: "Adrian Task 4a & 4b"
-          href: "Test_Folder/adrian_test_q4/testing_q4.qmd"   
-        - text: "Rico Task 3"
-          href: "Test_Folder/Rico_q3/Take Home Exercise 3.qmd"
-        - text: "David Task 2"
-          href: "Test_Folder/David_Q2/Take-Home_Ex02_MC3 - Q2.qmd"
         - text: "Report Draft (Main)"
-          href: main_project_qmd/main_project_qmd/main.html
+          href: "main_project_qmd/main_project_qmd/main.html"
     right:
       - href: index.qmd
         text: Home

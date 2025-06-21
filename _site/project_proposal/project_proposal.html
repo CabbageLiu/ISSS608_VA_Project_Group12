@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -37,10 +71,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ddd961a2510921635943dfbbd19534c4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -126,8 +160,36 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#take-home-exercise-3-prototype-module-designing-community-detection-and-pseudonym-network-exploration" id="toc-take-home-exercise-3-prototype-module-designing-community-detection-and-pseudonym-network-exploration" class="nav-link active" data-scroll-target="#take-home-exercise-3-prototype-module-designing-community-detection-and-pseudonym-network-exploration">Take-home Exercise 3: Prototype Module Designing – Community Detection and Pseudonym Network Exploration</a>
+  <ul class="collapse">
+  <li><a href="#the-task" id="toc-the-task" class="nav-link" data-scroll-target="#the-task"><strong>The Task</strong></a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><strong>1. Introduction</strong></a></li>
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation"><strong>2. Data Preparation</strong></a>
+  <ul class="collapse">
+  <li><a href="#pre-processing-steps" id="toc-pre-processing-steps" class="nav-link" data-scroll-target="#pre-processing-steps"><strong>Pre-processing Steps:</strong></a></li>
+  </ul></li>
+  <li><a href="#analytical-and-visualisation-techniques" id="toc-analytical-and-visualisation-techniques" class="nav-link" data-scroll-target="#analytical-and-visualisation-techniques">3. Analytical and Visualisation Techniques</a>
+  <ul class="collapse">
+  <li><a href="#algorithms-used" id="toc-algorithms-used" class="nav-link" data-scroll-target="#algorithms-used">Algorithms Used:</a></li>
+  <li><a href="#visualisation-approach" id="toc-visualisation-approach" class="nav-link" data-scroll-target="#visualisation-approach">Visualisation Approach:</a></li>
+  </ul></li>
+  <li><a href="#ui-design-prototyping-storyboarding" id="toc-ui-design-prototyping-storyboarding" class="nav-link" data-scroll-target="#ui-design-prototyping-storyboarding">4. UI Design (Prototyping &amp; Storyboarding)</a>
+  <ul class="collapse">
+  <li><a href="#prototyping-strategy" id="toc-prototyping-strategy" class="nav-link" data-scroll-target="#prototyping-strategy">Prototyping Strategy</a></li>
+  <li><a href="#storyboarding-process" id="toc-storyboarding-process" class="nav-link" data-scroll-target="#storyboarding-process">Storyboarding Process</a></li>
+  <li><a href="#planned-layout" id="toc-planned-layout" class="nav-link" data-scroll-target="#planned-layout">Planned Layout</a></li>
+  <li><a href="#main-landing-page-mock-ups-and-dashboard-style" id="toc-main-landing-page-mock-ups-and-dashboard-style" class="nav-link" data-scroll-target="#main-landing-page-mock-ups-and-dashboard-style">Main Landing Page Mock-ups and Dashboard Style</a></li>
+  <li><a href="#ui-component-mapping" id="toc-ui-component-mapping" class="nav-link" data-scroll-target="#ui-component-mapping">UI Component Mapping</a></li>
+  <li><a href="#design-learnings-from-references" id="toc-design-learnings-from-references" class="nav-link" data-scroll-target="#design-learnings-from-references">Design Learnings from References</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -158,7 +220,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">June 8, 2025</p>
+      <p class="date-modified">June 21, 2025</p>
     </div>
   </div>
     
@@ -169,12 +231,248 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="take-home-exercise-3-prototype-module-designing-community-detection-and-pseudonym-network-exploration" class="level1">
+<h1>Take-home Exercise 3: Prototype Module Designing – Community Detection and Pseudonym Network Exploration</h1>
+<section id="the-task" class="level2">
+<h2 class="anchored" data-anchor-id="the-task"><strong>The Task</strong></h2>
+<p>In this take-home exercise, you are required to select one of the module of your proposed Shiny application and complete the following tasks:</p>
+<ul>
+<li>To evaluate and determine the necessary R packages needed for your Shiny application are supported in R CRAN,</li>
+<li>To prepare and test the specific R codes can be run and returned the correct output as expected,</li>
+<li>To determine the parameters and outputs that will be exposed on the Shiny applications, and</li>
+<li>To select the appropriate Shiny UI components for exposing the parameters determine above.</li>
+</ul>
+<hr>
+</section>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction"><strong>1. Introduction</strong></h2>
+<p>This prototype module is part of a larger visual analytics application for Mini-Challenge 3 (VAST Challenge 2025). It supports investigative journalist <strong>Clepper Jessen</strong> in uncovering hidden relationships and pseudonymous communication patterns within the radio transcript dataset of Oceanus.</p>
+<p>The goal of this prototype is to storyboard and test a modular component that will eventually be integrated into the full Shiny application. The focus is on <strong>community detection</strong> and <strong>interactive pseudonym analysis</strong>, providing users with the ability to dynamically explore clusters of entities based on radio communication activity.</p>
+<p>This document outlines the prototyping process, from data wrangling and method selection, to interactive interface design using Shiny components. The storyboard describes how different visual and interactive elements will work together to support investigative insights.</p>
+</section>
+<section id="data-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation"><strong>2. Data Preparation</strong></h2>
+<p>The source data is a knowledge graph in JSON format (<code>MC3_graph.json</code>) provided in the VAST Challenge 2025 Mini-Challenge 3. It consists of two primary components:</p>
+<ul>
+<li><strong>Nodes</strong>: Representing entities such as persons, vessels, places, and roles, each with metadata such as labels and types.</li>
+<li><strong>Edges</strong>: Representing communications between nodes with attributes such as sender, receiver, channel, date-time, and message weight.</li>
+</ul>
+<section id="pre-processing-steps" class="level3">
+<h3 class="anchored" data-anchor-id="pre-processing-steps"><strong>Pre-processing Steps:</strong></h3>
+<p>The following R packages were used for data wrangling:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidygraph)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggraph)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The steps to prepare the data are as follows:</p>
+<p><strong>Step 1: Load and Parse the JSON File</strong></p>
+<pre><code># Load the knowledge graph json_graph &lt;- jsonlite::read_json("data/MC3_graph.json")</code></pre>
+<p><strong>Step 2: Extract and Structure Nodes and Edges</strong></p>
+<pre><code># Convert to tibble format nodes_tbl &lt;- as_tibble(json_graph$nodes) edges_tbl &lt;- as_tibble(json_graph$links)  # Rename and structure columns for compatibility nodes_tbl &lt;- nodes_tbl %&gt;% rename(id = id, label = name, type = entity_type) edges_tbl &lt;- edges_tbl %&gt;% rename(from = source, to = target)</code></pre>
+<p><strong>Step 3: Convert to a Tidygraph Object</strong></p>
+<pre><code>graph_data &lt;- tbl_graph(nodes = nodes_tbl, edges = edges_tbl, directed = TRUE)</code></pre>
+<p><strong>Step 4: Clean and Enrich the Graph</strong></p>
+<pre><code># Filter out edges with low weights or irrelevant connections (e.g., self-loops) graph_data &lt;- graph_data %&gt;%    activate(edges) %&gt;%    filter(!is.na(from), !is.na(to)) %&gt;%    filter(weight &gt; 1) %&gt;%    activate(nodes) %&gt;%    mutate(degree = centrality_degree())</code></pre>
+<p><strong>Step 5: Verify Graph Summary</strong></p>
+<pre><code>summary(graph_data)</code></pre>
+<p>These steps ensure that the data is converted into a tidy, filterable, and graph-compatible structure for community detection and interactive visualisation.</p>
+<p>The core data transformation principles applied include:</p>
+<ul>
+<li><strong>Parsed JSON using tidygraph and igraph</strong> to build a directed graph structure from node-link format.</li>
+<li><strong>Mapped entity metadata</strong> to classify nodes into roles such as Person, Vessel, and Place.</li>
+<li><strong>Filtered and simplified the graph</strong>, including removal of self-loops and edges with insignificant weights to retain only meaningful relationships.</li>
+<li><strong>Enriched nodes with centrality metrics</strong>, particularly degree centrality, which is used for sizing and filtering nodes during visualisation.</li>
+</ul>
+</section>
+</section>
+<section id="analytical-and-visualisation-techniques" class="level2">
+<h2 class="anchored" data-anchor-id="analytical-and-visualisation-techniques">3. Analytical and Visualisation Techniques</h2>
+<p>This module employs a dual-pronged analytical strategy that combines community detection algorithms with exploratory network visualization. These techniques allow the investigator to detect tightly linked communication subgroups, potentially exposing pseudonym clusters or coordinated behavior among vessels and individuals.</p>
+<section id="algorithms-used" class="level3">
+<h3 class="anchored" data-anchor-id="algorithms-used">Algorithms Used:</h3>
+<p>We adopted two widely recognized algorithms for graph community detection:</p>
+<ul>
+<li><strong>Louvain Community Detection</strong>: An unsupervised modularity-based approach that optimizes the partitioning of the graph into clusters. It is computationally efficient and ideal for detecting broad clusters in large-scale networks.</li>
+<li><strong>Walktrap Community Detection</strong>: Uses short random walks to find densely connected subgraphs. It is suitable for identifying smaller, more cohesive communities and capturing subtle relational dynamics.</li>
+</ul>
+<p>Both algorithms produce numeric cluster IDs for each node, which are then used for node coloring and group-based filtering in the visual layer.</p>
+</section>
+<section id="visualisation-approach" class="level3">
+<h3 class="anchored" data-anchor-id="visualisation-approach">Visualisation Approach:</h3>
+<p>Visualisation is a central element in this prototype, serving both as an exploratory and explanatory tool. Two main techniques were employed:</p>
+<ul>
+<li><strong>Static Graphs using <code>ggraph</code></strong>: These are helpful during the analytical phase for layout calibration, edge density verification, and debugging of network transformations.</li>
+<li><strong>Interactive Graphs using <code>visNetwork</code></strong>: These are deployed in the Shiny UI to support user-driven exploration. <code>visNetwork</code> provides pan, zoom, hover, and click functionality, which enhances pattern recognition and contextual analysis.</li>
+</ul>
+<p>Color schemes were intentionally chosen to reflect community membership (via cluster ID), and node sizing was mapped to degree centrality to emphasize influence or activity within the graph.</p>
+<p>Additional enhancements include:</p>
+<ul>
+<li>Hover tooltips to display entity type and communication degree</li>
+<li>Legend to distinguish nodes by category (Person, Vessel, Place)</li>
+<li>Reactive filtering to isolate specific patterns of interest</li>
+<li><strong>Static Graphs</strong>: Using <code>ggraph</code> for initial exploration.</li>
+<li><strong>Interactive Network</strong>: Leveraging <code>visNetwork</code> for drilldown, tooltips, and filtering.</li>
+</ul>
+</section>
+</section>
+<section id="ui-design-prototyping-storyboarding" class="level2">
+<h2 class="anchored" data-anchor-id="ui-design-prototyping-storyboarding">4. UI Design (Prototyping &amp; Storyboarding)</h2>
+<p>This section emphasizes key prototyping principles outlined in the exercise brief:</p>
+<ol type="1">
+<li><p><strong>Evaluation of R Packages from CRAN</strong>: The prototype uses CRAN-supported packages such as <code>shiny</code>, <code>visNetwork</code>, <code>tidygraph</code>, <code>ggraph</code>, <code>igraph</code>, <code>jsonlite</code>, <code>dplyr</code>, and <code>DT</code>, all verified as stable and production-ready. This ensures compatibility and reduces technical risk when scaling the full Shiny application.</p></li>
+<li><p><strong>Validation of Functional Code</strong>: All prototype components will be individually tested using RStudio. The pre-processing logic and community detection methods seek to ensure that it return correct outputs, and the visual network plot reacts dynamically to filtered inputs. Each Shiny UI input will be tied to a reactive server-side operation, tested both in isolation and in the Shiny runtime environment.</p></li>
+<li><p><strong>Definition of Inputs and Outputs</strong>: Inputs include dropdowns for algorithm selection, checkboxes for entity filtering, and sliders for edge weight thresholds. Outputs include an interactive <code>visNetwork</code> graph, node information text display, and (optionally) an exportable snapshot. This alignment ensures clarity for both developers and users.</p></li>
+<li><p><strong>Shiny UI Component Selection</strong>: Interface components are chosen to balance functionality and user experience:</p>
+<ul>
+<li><p><code>selectInput()</code> offers a clear choice between Louvain and Walktrap algorithms.</p></li>
+<li><p><code>checkboxGroupInput()</code> allows entity-specific filtering for targeted analysis.</p></li>
+<li><p><code>sliderInput()</code> provides intuitive numeric filtering for graph density.</p></li>
+<li><p><code>visNetworkOutput()</code> renders an interactive and scalable network layout.</p></li>
+<li><p><code>verbatimTextOutput()</code> reveals node metadata for contextual interpretation.</p></li>
+</ul></li>
+</ol>
+<p>These choices follow principles showcased in leading prototypes (e.g., Decoding Chaos and Tanzania Tourism), focusing on minimal cognitive load, fast responsiveness, and user-guided discovery.</p>
+<p>To ensure clarity and usability, this module is designed using a storyboard-driven approach, inspired by best practices observed in exemplary prototype pages such as those from <em>Decoding Chaos</em> and <em>Tanzania Tourism Analysis</em>.</p>
+<section id="prototyping-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="prototyping-strategy">Prototyping Strategy</h3>
+<p>Drawing inspiration from these references:</p>
+<ul>
+<li>Use <strong>incremental prototyping</strong>: starting with static exploration, then layering interactivity.</li>
+<li>Implement <strong>modular design</strong>: develop this as one self-contained component for integration into the larger app.</li>
+<li>Include <strong>user-centered workflows</strong>: filters and actions modeled after investigative tasks (e.g., discovering who communicates frequently, identifying aliases).</li>
+</ul>
+</section>
+<section id="storyboarding-process" class="level3">
+<h3 class="anchored" data-anchor-id="storyboarding-process">Storyboarding Process</h3>
+<ol type="1">
+<li><strong>Define User Goals</strong>: Support Clepper in uncovering clustered interactions and pseudonym aliases.</li>
+<li><strong>Storyboard Sketching</strong>: Initial wireframes were drafted to conceptualize component layout — influenced by those in the Decoding Chaos storyboard page.</li>
+<li><strong>Component-Task Mapping</strong>: Every UI widget was explicitly mapped to a backend logic, ensuring traceability and transparency.</li>
+</ol>
+</section>
+<section id="planned-layout" class="level3">
+<h3 class="anchored" data-anchor-id="planned-layout">Planned Layout</h3>
+<p>The following storyboard sketch illustrates the intended Shiny module layout. It includes the sidebar controls for algorithm and entity filtering, and the main panel displaying the interactive <code>visNetwork</code> output. To ground the design process, we created both a low-fidelity storyboard sketch and a visual Shiny layout mock-up.</p>
+<ul>
+<li><strong>Sidebar</strong>: Control panel for selecting algorithm type, filtering entity type, and edge weight.</li>
+<li><strong>Main Panel</strong>: Interactive network with dynamic tooltips, zoom/pan, and metadata inspection.</li>
+<li><strong>Tabbed Interface</strong> <em>(optional)</em>: To toggle between community detection algorithms or show temporal comparisons.</li>
+<li><strong>Export &amp; Snapshot Option</strong>: Allow user to capture the view for reporting.</li>
+</ul>
+</section>
+<section id="main-landing-page-mock-ups-and-dashboard-style" class="level3">
+<h3 class="anchored" data-anchor-id="main-landing-page-mock-ups-and-dashboard-style">Main Landing Page Mock-ups and Dashboard Style</h3>
+<p>To inform the visual language and layout of the Shiny application, our team designed a prototype landing page comprising several interlinked interface sections. These visuals illustrate the envisioned user interface and serve as references for component development.</p>
+<section id="landing-cover-page-team-identity" class="level4">
+<h4 class="anchored" data-anchor-id="landing-cover-page-team-identity">1. <strong>Landing Cover Page (Team Identity)</strong></h4>
+<p>This mock-up establishes the visual identity and thematic branding for the dashboard. It reflects both the investigative tone of the VAST Challenge and our team’s creative approach. It includes a left navigation menu that guides users to each of the core question modules (Q1 to Q4), providing a consistent sidebar layout throughout the app.</p>
 <p><img src="pictures/1.png" class="img-fluid"></p>
 <p><img src="pictures/2.png" class="img-fluid"></p>
+</section>
+<section id="daily-radio-communication-volume-q1a-q1b" class="level4">
+<h4 class="anchored" data-anchor-id="daily-radio-communication-volume-q1a-q1b">2. <strong>Daily Radio Communication Volume (Q1A &amp; Q1B)</strong></h4>
+<p>This section visualizes message frequency over time to detect periodicity or anomalies. It includes:</p>
+<ul>
+<li>A dynamic bar chart summarizing total and average daily volume.</li>
+<li>Interactive dropdown and hover tooltips for contextual exploration.</li>
+</ul>
+<p><em>This template serves as a reference for time-series visualizations to be integrated in future timeline-driven modules of the application.</em></p>
 <p><img src="pictures/3.png" class="img-fluid"></p>
+</section>
+<section id="entity-network-focus-view-nadia-conti-q1c" class="level4">
+<h4 class="anchored" data-anchor-id="entity-network-focus-view-nadia-conti-q1c">3. <strong>Entity Network Focus View – “Nadia Conti” (Q1C)</strong></h4>
+<p>This visual emphasizes network centrality and ego relationships. It includes:</p>
+<ul>
+<li>Shapes and colors to differentiate entity types (e.g., vessel, organization, person).</li>
+<li>A drop-down filter to focus on individual entities.</li>
+</ul>
+<p><em>This model informed the modular network layout used in our prototype for community and pseudonym analysis.</em></p>
 <p><img src="pictures/4.png" class="img-fluid"></p>
+</section>
+<section id="storyboard-sketch-module-wireframe" class="level4">
+<h4 class="anchored" data-anchor-id="storyboard-sketch-module-wireframe">4. <strong>Storyboard Sketch (Module Wireframe)</strong></h4>
+<p>This low-fidelity layout demonstrates the foundational module structure:</p>
+<ul>
+<li>Left panel: Parameter controls</li>
+<li>Right panel: Interactive graph and metadata display</li>
+</ul>
+<p>It serves as the core layout pattern for the Shiny UI development, supporting Louvain/Walktrap switching, entity filters, and network interactivity.</p>
+<p><img src="images/clipboard-1365057945.png" class="img-fluid"></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">"Community Detection &amp; Pseudonym Explorer"</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sidebarLayout</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sidebarPanel</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">selectInput</span>(<span class="st">"algo"</span>, <span class="st">"Community Detection Algorithm"</span>, <span class="at">choices =</span> <span class="fu">c</span>(<span class="st">"Louvain"</span>, <span class="st">"Walktrap"</span>)),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">checkboxGroupInput</span>(<span class="st">"type"</span>, <span class="st">"Entity Types"</span>, <span class="at">choices =</span> <span class="fu">c</span>(<span class="st">"Person"</span>, <span class="st">"Vessel"</span>, <span class="st">"Place"</span>)),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sliderInput</span>(<span class="st">"weight"</span>, <span class="st">"Minimum Edge Weight"</span>, <span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">10</span>, <span class="at">value =</span> <span class="dv">2</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mainPanel</span>(</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">visNetworkOutput</span>(<span class="st">"net"</span>, <span class="at">height =</span> <span class="st">"600px"</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">verbatimTextOutput</span>(<span class="st">"info"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="ui-component-mapping" class="level3">
+<h3 class="anchored" data-anchor-id="ui-component-mapping">UI Component Mapping</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 47%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>UI Component</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>selectInput("algo")</code></td>
+<td>Choose detection algorithm (Louvain/Walktrap)</td>
+</tr>
+<tr class="even">
+<td><code>checkboxGroupInput("type")</code></td>
+<td>Filter node types (person, vessel, place)</td>
+</tr>
+<tr class="odd">
+<td><code>sliderInput("weight")</code></td>
+<td>Filter connections below weight threshold</td>
+</tr>
+<tr class="even">
+<td><code>visNetworkOutput("net")</code></td>
+<td>Display interactive graph</td>
+</tr>
+<tr class="odd">
+<td><code>verbatimTextOutput("info")</code></td>
+<td>Node metadata panel</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="design-learnings-from-references" class="level3">
+<h3 class="anchored" data-anchor-id="design-learnings-from-references">Design Learnings from References</h3>
+<ul>
+<li><strong>Tanzania Tourism</strong> emphasized clarity in visual transitions and guided storytelling.</li>
+<li><strong>Decoding Chaos</strong> used a modular dashboard and strong use of aspatial/geospatial splits — we aim to mirror this by making this module fully pluggable.</li>
+<li><strong>Confirmatory Analysis</strong> example showed the benefit of toggling between analytical models — we aim to adopt this in Louvain vs.&nbsp;Walktrap switch.</li>
+</ul>
 
 
+</section>
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -259,8 +557,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -371,7 +667,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

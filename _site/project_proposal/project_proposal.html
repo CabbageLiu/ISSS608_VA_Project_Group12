@@ -182,10 +182,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#prototyping-strategy" id="toc-prototyping-strategy" class="nav-link" data-scroll-target="#prototyping-strategy">Prototyping Strategy</a></li>
   <li><a href="#storyboarding-process" id="toc-storyboarding-process" class="nav-link" data-scroll-target="#storyboarding-process">Storyboarding Process</a></li>
-  <li><a href="#planned-layout" id="toc-planned-layout" class="nav-link" data-scroll-target="#planned-layout">Planned Layout</a></li>
   <li><a href="#main-landing-page-mock-ups-and-dashboard-style" id="toc-main-landing-page-mock-ups-and-dashboard-style" class="nav-link" data-scroll-target="#main-landing-page-mock-ups-and-dashboard-style">Main Landing Page Mock-ups and Dashboard Style</a></li>
+  <li><a href="#planned-layout" id="toc-planned-layout" class="nav-link" data-scroll-target="#planned-layout">Planned Layout</a></li>
   <li><a href="#ui-component-mapping" id="toc-ui-component-mapping" class="nav-link" data-scroll-target="#ui-component-mapping">UI Component Mapping</a></li>
-  <li><a href="#design-learnings-from-references" id="toc-design-learnings-from-references" class="nav-link" data-scroll-target="#design-learnings-from-references">Design Learnings from References</a></li>
+  <li><a href="#interactive-tabulated-results" id="toc-interactive-tabulated-results" class="nav-link" data-scroll-target="#interactive-tabulated-results">Interactive Tabulated Results</a></li>
+  </ul></li>
+  <li><a href="#parameters-and-outputs" id="toc-parameters-and-outputs" class="nav-link" data-scroll-target="#parameters-and-outputs">5. Parameters and Outputs</a>
+  <ul class="collapse">
+  <li><a href="#user-inputs" id="toc-user-inputs" class="nav-link" data-scroll-target="#user-inputs">User Inputs:</a></li>
+  <li><a href="#application-outputs" id="toc-application-outputs" class="nav-link" data-scroll-target="#application-outputs">Application Outputs:</a></li>
+  <li><a href="#interactivity-expansion-ideas" id="toc-interactivity-expansion-ideas" class="nav-link" data-scroll-target="#interactivity-expansion-ideas">Interactivity Expansion Ideas:</a></li>
+  <li><a href="#user-inputs-1" id="toc-user-inputs-1" class="nav-link" data-scroll-target="#user-inputs-1">User Inputs:</a></li>
+  <li><a href="#application-outputs-1" id="toc-application-outputs-1" class="nav-link" data-scroll-target="#application-outputs-1">Application Outputs:</a></li>
+  </ul></li>
+  <li><a href="#prototype-code-snippets" id="toc-prototype-code-snippets" class="nav-link" data-scroll-target="#prototype-code-snippets">6. Prototype Code Snippets</a></li>
+  <li><a href="#reflections-and-next-steps" id="toc-reflections-and-next-steps" class="nav-link" data-scroll-target="#reflections-and-next-steps">7. Reflections and Next Steps</a>
+  <ul class="collapse">
+  <li><a href="#proposed-next-steps" id="toc-proposed-next-steps" class="nav-link" data-scroll-target="#proposed-next-steps">Proposed Next Steps</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -355,16 +368,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Component-Task Mapping</strong>: Every UI widget was explicitly mapped to a backend logic, ensuring traceability and transparency.</li>
 </ol>
 </section>
-<section id="planned-layout" class="level3">
-<h3 class="anchored" data-anchor-id="planned-layout">Planned Layout</h3>
-<p>The following storyboard sketch illustrates the intended Shiny module layout. It includes the sidebar controls for algorithm and entity filtering, and the main panel displaying the interactive <code>visNetwork</code> output. To ground the design process, we created both a low-fidelity storyboard sketch and a visual Shiny layout mock-up.</p>
-<ul>
-<li><strong>Sidebar</strong>: Control panel for selecting algorithm type, filtering entity type, and edge weight.</li>
-<li><strong>Main Panel</strong>: Interactive network with dynamic tooltips, zoom/pan, and metadata inspection.</li>
-<li><strong>Tabbed Interface</strong> <em>(optional)</em>: To toggle between community detection algorithms or show temporal comparisons.</li>
-<li><strong>Export &amp; Snapshot Option</strong>: Allow user to capture the view for reporting.</li>
-</ul>
-</section>
 <section id="main-landing-page-mock-ups-and-dashboard-style" class="level3">
 <h3 class="anchored" data-anchor-id="main-landing-page-mock-ups-and-dashboard-style">Main Landing Page Mock-ups and Dashboard Style</h3>
 <p>To inform the visual language and layout of the Shiny application, our team designed a prototype landing page comprising several interlinked interface sections. These visuals illustrate the envisioned user interface and serve as references for component development.</p>
@@ -403,29 +406,92 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>It serves as the core layout pattern for the Shiny UI development, supporting Louvain/Walktrap switching, entity filters, and network interactivity.</p>
 <p><img src="images/clipboard-1365057945.png" class="img-fluid"></p>
+</section>
+</section>
+<section id="planned-layout" class="level3">
+<h3 class="anchored" data-anchor-id="planned-layout">Planned Layout</h3>
+<p>The storyboard sketch and mock-ups reinforce a consistent modular layout adopted across the Shiny application. Each view uses a <strong>sidebar-main panel split</strong>, empowering users to choose algorithm types and entity filters on the left and observe dynamic network results on the right.</p>
+<ul>
+<li><strong>Sidebar</strong>: Control panel for selecting algorithm type, filtering entity type, and edge weight.</li>
+<li><strong>Main Panel</strong>: Interactive network with dynamic tooltips, zoom/pan, and metadata inspection.</li>
+<li><strong>Tabbed Interface</strong> <em>(optional)</em>: To toggle between community detection algorithms or show temporal comparisons.</li>
+<li><strong>Export &amp; Snapshot Option</strong>: Allow user to capture the view for reporting.</li>
+</ul>
+<section id="example-ui-layout" class="level4">
+<h4 class="anchored" data-anchor-id="example-ui-layout">Example UI Layout</h4>
+<p>Below is a simplified Shiny layout using <code>fluidPage()</code> to map this structure:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">"Community Detection &amp; Pseudonym Explorer"</span>),</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sidebarLayout</span>(</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sidebarPanel</span>(</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">selectInput</span>(<span class="st">"algo"</span>, <span class="st">"Community Detection Algorithm"</span>, <span class="at">choices =</span> <span class="fu">c</span>(<span class="st">"Louvain"</span>, <span class="st">"Walktrap"</span>)),</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">checkboxGroupInput</span>(<span class="st">"type"</span>, <span class="st">"Entity Types"</span>, <span class="at">choices =</span> <span class="fu">c</span>(<span class="st">"Person"</span>, <span class="st">"Vessel"</span>, <span class="st">"Place"</span>)),</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sliderInput</span>(<span class="st">"weight"</span>, <span class="st">"Minimum Edge Weight"</span>, <span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">10</span>, <span class="at">value =</span> <span class="dv">2</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mainPanel</span>(</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">visNetworkOutput</span>(<span class="st">"net"</span>, <span class="at">height =</span> <span class="st">"600px"</span>),</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">verbatimTextOutput</span>(<span class="st">"info"</span>)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|code-fold: False</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">"Community Detection &amp; Pseudonym Explorer"</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sidebarLayout</span>(</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sidebarPanel</span>(</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">selectInput</span>(<span class="st">"algo"</span>, <span class="st">"Community Detection Algorithm"</span>, <span class="at">choices =</span> <span class="fu">c</span>(<span class="st">"Louvain"</span>, <span class="st">"Walktrap"</span>)),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">checkboxGroupInput</span>(<span class="st">"type"</span>, <span class="st">"Entity Types"</span>, <span class="at">choices =</span> <span class="fu">c</span>(<span class="st">"Person"</span>, <span class="st">"Vessel"</span>, <span class="st">"Place"</span>)),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sliderInput</span>(<span class="st">"weight"</span>, <span class="st">"Minimum Edge Weight"</span>, <span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">10</span>, <span class="at">value =</span> <span class="dv">2</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mainPanel</span>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">visNetworkOutput</span>(<span class="st">"net"</span>, <span class="at">height =</span> <span class="st">"600px"</span>),</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">verbatimTextOutput</span>(<span class="st">"info"</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<p>This structure ensures responsiveness, clarity, and user engagement. The design accommodates future expansion while maintaining a low learning curve. Screenshots from earlier dashboard questions, such as the bar chart in Q1A&amp;B and the entity-focused network of Q1C, served as design blueprints to guide the final implementation.</p>
 </section>
 </section>
 <section id="ui-component-mapping" class="level3">
 <h3 class="anchored" data-anchor-id="ui-component-mapping">UI Component Mapping</h3>
+<p>In addition to interactive graph exploration, this Shiny application supports tabulated results presented using the <code>DT</code> package. This enhances user control and discoverability when inspecting detailed data outputs such as entity centrality, community membership, or alias metadata.</p>
+</section>
+<section id="interactive-tabulated-results" class="level3">
+<h3 class="anchored" data-anchor-id="interactive-tabulated-results">Interactive Tabulated Results</h3>
+<p>Using <code>DT::datatable()</code>, users can:</p>
+<ul>
+<li>🔍 Search and filter across any column</li>
+<li>🔼🔽 Sort by degree, cluster ID, type, or other attributes</li>
+<li>🎯 Focus on specific entities or pseudonyms from the wider graph output</li>
+</ul>
+<section id="example-ui-integration" class="level4">
+<h4 class="anchored" data-anchor-id="example-ui-integration">Example UI Integration</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mainPanel</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">DTOutput</span>(<span class="st">"result_table"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="server-logic-example" class="level4">
+<h4 class="anchored" data-anchor-id="server-logic-example">Server Logic Example</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>output<span class="sc">$</span>result_table <span class="ot">&lt;-</span> <span class="fu">renderDT</span>({</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">datatable</span>(df_results,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">options =</span> <span class="fu">list</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">pageLength =</span> <span class="dv">10</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">autoWidth =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">searchHighlight =</span> <span class="cn">TRUE</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>            ),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">rownames =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">filter =</span> <span class="st">"top"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">class =</span> <span class="st">'stripe hover compact'</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>This supports investigation workflows such as:</p>
+<ul>
+<li>Listing top communicators by degree centrality</li>
+<li>Exploring all known aliases and pseudonyms</li>
+<li>Displaying communication volume by entity pairs</li>
+</ul>
+<p>By embedding this alongside the network graph, the application delivers both <strong>relational context</strong> and <strong>tabulated drilldown</strong> capabilities, bridging visual insight with attribute-level data access.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 47%">
@@ -460,14 +526,168 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-</section>
-<section id="design-learnings-from-references" class="level3">
-<h3 class="anchored" data-anchor-id="design-learnings-from-references">Design Learnings from References</h3>
+<p><strong>Design Learnings from References</strong></p>
 <ul>
 <li><strong>Tanzania Tourism</strong> emphasized clarity in visual transitions and guided storytelling.</li>
 <li><strong>Decoding Chaos</strong> used a modular dashboard and strong use of aspatial/geospatial splits — we aim to mirror this by making this module fully pluggable.</li>
 <li><strong>Confirmatory Analysis</strong> example showed the benefit of toggling between analytical models — we aim to adopt this in Louvain vs.&nbsp;Walktrap switch.</li>
 </ul>
+</section>
+</section>
+</section>
+<section id="parameters-and-outputs" class="level2">
+<h2 class="anchored" data-anchor-id="parameters-and-outputs">5. Parameters and Outputs</h2>
+<p>To make the Shiny application more engaging and insightful, we expand beyond core filters and outputs to include a wider array of interactive features.</p>
+<section id="user-inputs" class="level3">
+<h3 class="anchored" data-anchor-id="user-inputs">User Inputs:</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 46%">
+<col style="width: 53%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Input Control</strong></td>
+<td><strong>Description</strong></td>
+</tr>
+<tr class="even">
+<td><code>selectInput("algo")</code></td>
+<td>Community detection method selector (Louvain or Walktrap)</td>
+</tr>
+<tr class="odd">
+<td><code>checkboxGroupInput("type")</code></td>
+<td>Entity type filter (Person, Vessel, Place)</td>
+</tr>
+<tr class="even">
+<td><code>sliderInput("weight")</code></td>
+<td>Minimum edge weight threshold to reduce noise</td>
+</tr>
+<tr class="odd">
+<td><code>selectInput("focus_entity")</code></td>
+<td>Focus on a particular entity (e.g., Nadia Conti) to show ego network</td>
+</tr>
+<tr class="even">
+<td><code>checkboxInput("highlight_alias")</code></td>
+<td>Toggle to highlight entities suspected of pseudonym usage</td>
+</tr>
+<tr class="odd">
+<td><code>dateRangeInput("comm_range")</code></td>
+<td>Select time window to filter communication edges</td>
+</tr>
+<tr class="even">
+<td><code>selectInput("cluster_id")</code></td>
+<td>Filter or highlight a specific cluster based on detection algorithm</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="application-outputs" class="level3">
+<h3 class="anchored" data-anchor-id="application-outputs">Application Outputs:</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 45%">
+<col style="width: 54%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Output Component</strong></td>
+<td><strong>Description</strong></td>
+</tr>
+<tr class="even">
+<td><code>visNetworkOutput("net")</code></td>
+<td>Interactive network showing colored clusters and filtered edges</td>
+</tr>
+<tr class="odd">
+<td><code>verbatimTextOutput("info")</code></td>
+<td>Metadata of selected node (e.g., name, type, degree)</td>
+</tr>
+<tr class="even">
+<td><code>plotOutput("timeline_plot")</code></td>
+<td>Communication volume over time (to be integrated)</td>
+</tr>
+<tr class="odd">
+<td><code>DTOutput("result_table")</code></td>
+<td>Tabular view of nodes or edges with filtering and sorting features</td>
+</tr>
+<tr class="even">
+<td><code>downloadButton("export_plot")</code></td>
+<td>Export current network view as image or snapshot</td>
+</tr>
+<tr class="odd">
+<td><code>textOutput("cluster_summary")</code></td>
+<td>Summary statistics for selected community cluster</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="interactivity-expansion-ideas" class="level3">
+<h3 class="anchored" data-anchor-id="interactivity-expansion-ideas">Interactivity Expansion Ideas:</h3>
+<ul>
+<li><strong>Drill-down via double-click</strong>: Expand a node to show direct neighbors</li>
+<li><strong>Brushing and linking</strong>: Select nodes from network to highlight rows in table</li>
+<li><strong>Dynamic color mapping</strong>: Toggle between cluster ID, entity type, or degree centrality as node color basis</li>
+<li><strong>Topic integration</strong>: Add top-communicated keywords per cluster in hover tooltip or side display</li>
+<li><strong>Alias grouping</strong>: Visually link nodes suspected to share the same pseudonym</li>
+</ul>
+<p>These enhancements not only add usability and depth, but also align tightly with the investigative workflow Clepper is likely to pursue — identifying leads, tracking influence, and exposing deceptive practices over time.</p>
+</section>
+<section id="user-inputs-1" class="level3">
+<h3 class="anchored" data-anchor-id="user-inputs-1">User Inputs:</h3>
+<ul>
+<li>Community detection algorithm</li>
+<li>Entity type filter</li>
+<li>Weight threshold</li>
+</ul>
+</section>
+<section id="application-outputs-1" class="level3">
+<h3 class="anchored" data-anchor-id="application-outputs-1">Application Outputs:</h3>
+<ul>
+<li>Network plot (interactive, color-coded clusters)</li>
+<li>Node metadata when clicked</li>
+<li>Exportable graph snapshot (optional)</li>
+</ul>
+</section>
+</section>
+<section id="prototype-code-snippets" class="level2">
+<h2 class="anchored" data-anchor-id="prototype-code-snippets">6. Prototype Code Snippets</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Community Detection</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>graph_louvain <span class="ot">&lt;-</span> graph_data <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">community =</span> <span class="fu">group_louvain</span>())</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Interactive Plot</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>output<span class="sc">$</span>net <span class="ot">&lt;-</span> <span class="fu">renderVisNetwork</span>({</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  filtered <span class="ot">&lt;-</span> graph_louvain <span class="sc">%&gt;%</span> <span class="fu">activate</span>(edges) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(weight <span class="sc">&gt;=</span> input<span class="sc">$</span>weight)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visNetwork</span>(filtered)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="reflections-and-next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="reflections-and-next-steps">7. Reflections and Next Steps</h2>
+<p>This Take-home 3 prototype marks a successful first implementation of a modular Shiny component tailored for investigative visual analytics. It showcases the power of combining community detection algorithms, interactive network diagrams, and dynamic filtering interfaces to surface hidden communication patterns and pseudonym dynamics in a complex dataset.</p>
+<p>Key strengths of this prototype include:</p>
+<ul>
+<li>A tested and extensible data pipeline for converting JSON-based knowledge graphs into tidygraph objects</li>
+<li>Well-integrated community detection logic (Louvain and Walktrap)</li>
+<li>A modular and visually consistent user interface grounded in investigative needs</li>
+<li>Effective alignment between network visualisation and tabular insight via linked interactivity</li>
+</ul>
+<p>This prototype also reflects lessons learned from top-performing prior projects (e.g., Decoding Chaos, Tanzania Tourism) in terms of storyboarding, modular UI planning, and interaction design.</p>
+<section id="proposed-next-steps" class="level3">
+<h3 class="anchored" data-anchor-id="proposed-next-steps">Proposed Next Steps</h3>
+<p>To scale this prototype into a full-featured module within the final application, the following development goals are recommended:</p>
+<ul>
+<li><strong>Integrate Timeline Filtering</strong>: Allow communication edges to be filtered by date range using <code>dateRangeInput()</code>.</li>
+<li><strong>Implement Pseudonym Disambiguation</strong>: Build logic to identify and visually cluster suspected pseudonym aliases across multiple entities.</li>
+<li><strong>Topic Enrichment</strong>: Associate dominant message themes with detected communities using keyword extraction or topic modeling.</li>
+<li><strong>Brushing &amp; Linking</strong>: Enable node selections in the network to highlight related records in the tabular view, enhancing discoverability.</li>
+<li><strong>Geospatial Integration</strong>: Add optional map-based view to connect network dynamics to spatial context (if vessel coordinates or harbor data is available).</li>
+<li><strong>Scenario Testing</strong>: Validate with real investigative use cases by simulating Clepper Jessen’s workflow end-to-end.</li>
+</ul>
+<p>With these enhancements, the application can evolve into a powerful and intuitive investigative platform — revealing who is connected, how they communicate, and which identities may be intentionally obscured.</p>
 
 
 </section>

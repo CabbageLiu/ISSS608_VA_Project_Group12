@@ -166,15 +166,6 @@ Drawing inspiration from these references:
 2.  **Storyboard Sketching**: Initial wireframes were drafted to conceptualize component layout — influenced by those in the Decoding Chaos storyboard page.
 3.  **Component-Task Mapping**: Every UI widget was explicitly mapped to a backend logic, ensuring traceability and transparency.
 
-### Planned Layout
-
-The following storyboard sketch illustrates the intended Shiny module layout. It includes the sidebar controls for algorithm and entity filtering, and the main panel displaying the interactive `visNetwork` output. To ground the design process, we created both a low-fidelity storyboard sketch and a visual Shiny layout mock-up.
-
--   **Sidebar**: Control panel for selecting algorithm type, filtering entity type, and edge weight.
--   **Main Panel**: Interactive network with dynamic tooltips, zoom/pan, and metadata inspection.
--   **Tabbed Interface** *(optional)*: To toggle between community detection algorithms or show temporal comparisons.
--   **Export & Snapshot Option**: Allow user to capture the view for reporting.
-
 ### Main Landing Page Mock-ups and Dashboard Style
 
 To inform the visual language and layout of the Shiny application, our team designed a prototype landing page comprising several interlinked interface sections. These visuals illustrate the envisioned user interface and serve as references for component development.
@@ -220,7 +211,21 @@ It serves as the core layout pattern for the Shiny UI development, supporting Lo
 
 ![](images/clipboard-1365057945.png)
 
+### Planned Layout
+
+The storyboard sketch and mock-ups reinforce a consistent modular layout adopted across the Shiny application. Each view uses a **sidebar-main panel split**, empowering users to choose algorithm types and entity filters on the left and observe dynamic network results on the right.
+
+-   **Sidebar**: Control panel for selecting algorithm type, filtering entity type, and edge weight.
+-   **Main Panel**: Interactive network with dynamic tooltips, zoom/pan, and metadata inspection.
+-   **Tabbed Interface** *(optional)*: To toggle between community detection algorithms or show temporal comparisons.
+-   **Export & Snapshot Option**: Allow user to capture the view for reporting.
+
+#### Example UI Layout
+
+Below is a simplified Shiny layout using `fluidPage()` to map this structure:
+
 ```{r, eval=FALSE}
+#|code-fold: False
 
 ui <- fluidPage(
   titlePanel("Community Detection & Pseudonym Explorer"),
@@ -238,7 +243,51 @@ ui <- fluidPage(
 )
 ```
 
+This structure ensures responsiveness, clarity, and user engagement. The design accommodates future expansion while maintaining a low learning curve. Screenshots from earlier dashboard questions, such as the bar chart in Q1A&B and the entity-focused network of Q1C, served as design blueprints to guide the final implementation.
+
 ### UI Component Mapping
+
+In addition to interactive graph exploration, this Shiny application supports tabulated results presented using the `DT` package. This enhances user control and discoverability when inspecting detailed data outputs such as entity centrality, community membership, or alias metadata.
+
+### Interactive Tabulated Results
+
+Using `DT::datatable()`, users can:
+
+-   🔍 Search and filter across any column
+-   🔼🔽 Sort by degree, cluster ID, type, or other attributes
+-   🎯 Focus on specific entities or pseudonyms from the wider graph output
+
+#### Example UI Integration
+
+```{r, eval=FALSE}
+mainPanel(
+  DTOutput("result_table")
+)
+```
+
+#### Server Logic Example
+
+```{r, eval=FALSE}
+output$result_table <- renderDT({
+  datatable(df_results,
+            options = list(
+              pageLength = 10,
+              autoWidth = TRUE,
+              searchHighlight = TRUE
+            ),
+            rownames = FALSE,
+            filter = "top",
+            class = 'stripe hover compact')
+})
+```
+
+This supports investigation workflows such as:
+
+-   Listing top communicators by degree centrality
+-   Exploring all known aliases and pseudonyms
+-   Displaying communication volume by entity pairs
+
+By embedding this alongside the network graph, the application delivers both **relational context** and **tabulated drilldown** capabilities, bridging visual insight with attribute-level data access.
 
 | UI Component | Purpose |
 |----------------------------------|--------------------------------------|
@@ -248,8 +297,100 @@ ui <- fluidPage(
 | `visNetworkOutput("net")` | Display interactive graph |
 | `verbatimTextOutput("info")` | Node metadata panel |
 
-### Design Learnings from References
+**Design Learnings from References**
 
 -   **Tanzania Tourism** emphasized clarity in visual transitions and guided storytelling.
 -   **Decoding Chaos** used a modular dashboard and strong use of aspatial/geospatial splits — we aim to mirror this by making this module fully pluggable.
 -   **Confirmatory Analysis** example showed the benefit of toggling between analytical models — we aim to adopt this in Louvain vs. Walktrap switch.
+
+## 5. Parameters and Outputs
+
+To make the Shiny application more engaging and insightful, we expand beyond core filters and outputs to include a wider array of interactive features.
+
+### User Inputs:
+
+|  |  |
+|----------------------|-------------------------|
+| **Input Control** | **Description** |
+| `selectInput("algo")` | Community detection method selector (Louvain or Walktrap) |
+| `checkboxGroupInput("type")` | Entity type filter (Person, Vessel, Place) |
+| `sliderInput("weight")` | Minimum edge weight threshold to reduce noise |
+| `selectInput("focus_entity")` | Focus on a particular entity (e.g., Nadia Conti) to show ego network |
+| `checkboxInput("highlight_alias")` | Toggle to highlight entities suspected of pseudonym usage |
+| `dateRangeInput("comm_range")` | Select time window to filter communication edges |
+| `selectInput("cluster_id")` | Filter or highlight a specific cluster based on detection algorithm |
+
+### Application Outputs:
+
+|  |  |
+|----------------------|--------------------------|
+| **Output Component** | **Description** |
+| `visNetworkOutput("net")` | Interactive network showing colored clusters and filtered edges |
+| `verbatimTextOutput("info")` | Metadata of selected node (e.g., name, type, degree) |
+| `plotOutput("timeline_plot")` | Communication volume over time (to be integrated) |
+| `DTOutput("result_table")` | Tabular view of nodes or edges with filtering and sorting features |
+| `downloadButton("export_plot")` | Export current network view as image or snapshot |
+| `textOutput("cluster_summary")` | Summary statistics for selected community cluster |
+
+### Interactivity Expansion Ideas:
+
+-   **Drill-down via double-click**: Expand a node to show direct neighbors
+-   **Brushing and linking**: Select nodes from network to highlight rows in table
+-   **Dynamic color mapping**: Toggle between cluster ID, entity type, or degree centrality as node color basis
+-   **Topic integration**: Add top-communicated keywords per cluster in hover tooltip or side display
+-   **Alias grouping**: Visually link nodes suspected to share the same pseudonym
+
+These enhancements not only add usability and depth, but also align tightly with the investigative workflow Clepper is likely to pursue — identifying leads, tracking influence, and exposing deceptive practices over time.
+
+### User Inputs:
+
+-   Community detection algorithm
+-   Entity type filter
+-   Weight threshold
+
+### Application Outputs:
+
+-   Network plot (interactive, color-coded clusters)
+-   Node metadata when clicked
+-   Exportable graph snapshot (optional)
+
+## 6. Prototype Code Snippets
+
+```{r, eval=FALSE}
+
+# Community Detection
+graph_louvain <- graph_data %>% 
+  mutate(community = group_louvain())
+
+# Interactive Plot
+output$net <- renderVisNetwork({
+  filtered <- graph_louvain %>% activate(edges) %>% filter(weight >= input$weight)
+  visNetwork(filtered)
+})
+```
+
+## 7. Reflections and Next Steps
+
+This Take-home 3 prototype marks a successful first implementation of a modular Shiny component tailored for investigative visual analytics. It showcases the power of combining community detection algorithms, interactive network diagrams, and dynamic filtering interfaces to surface hidden communication patterns and pseudonym dynamics in a complex dataset.
+
+Key strengths of this prototype include:
+
+-   A tested and extensible data pipeline for converting JSON-based knowledge graphs into tidygraph objects
+-   Well-integrated community detection logic (Louvain and Walktrap)
+-   A modular and visually consistent user interface grounded in investigative needs
+-   Effective alignment between network visualisation and tabular insight via linked interactivity
+
+This prototype also reflects lessons learned from top-performing prior projects (e.g., Decoding Chaos, Tanzania Tourism) in terms of storyboarding, modular UI planning, and interaction design.
+
+### Proposed Next Steps
+
+To scale this prototype into a full-featured module within the final application, the following development goals are recommended:
+
+-   **Integrate Timeline Filtering**: Allow communication edges to be filtered by date range using `dateRangeInput()`.
+-   **Implement Pseudonym Disambiguation**: Build logic to identify and visually cluster suspected pseudonym aliases across multiple entities.
+-   **Topic Enrichment**: Associate dominant message themes with detected communities using keyword extraction or topic modeling.
+-   **Brushing & Linking**: Enable node selections in the network to highlight related records in the tabular view, enhancing discoverability.
+-   **Geospatial Integration**: Add optional map-based view to connect network dynamics to spatial context (if vessel coordinates or harbor data is available).
+-   **Scenario Testing**: Validate with real investigative use cases by simulating Clepper Jessen’s workflow end-to-end.
+
+With these enhancements, the application can evolve into a powerful and intuitive investigative platform — revealing who is connected, how they communicate, and which identities may be intentionally obscured.

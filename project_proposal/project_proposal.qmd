@@ -15,7 +15,7 @@ execute:
   freeze: true
 ---
 
-# Take-home Exercise 3: Prototype Module Designing – Community Detection and Pseudonym Network Exploration
+# Take-home Exercise 3: Prototype Module Designing for Vast Challenge 2025 MC3
 
 ## **The Task**
 
@@ -26,7 +26,7 @@ In this take-home exercise, you are required to select one of the module of your
 -   To determine the parameters and outputs that will be exposed on the Shiny applications, and
 -   To select the appropriate Shiny UI components for exposing the parameters determine above.
 
------------------------------------------------------
+------------------------------------------------------------------------
 
 ## **1. Introduction**
 
@@ -310,7 +310,7 @@ To make the Shiny application more engaging and insightful, we expand beyond cor
 ### User Inputs:
 
 |  |  |
-|----------------------|-------------------------|
+|----------------------------------|--------------------------------------|
 | **Input Control** | **Description** |
 | `selectInput("algo")` | Community detection method selector (Louvain or Walktrap) |
 | `checkboxGroupInput("type")` | Entity type filter (Person, Vessel, Place) |
@@ -323,7 +323,7 @@ To make the Shiny application more engaging and insightful, we expand beyond cor
 ### Application Outputs:
 
 |  |  |
-|----------------------|--------------------------|
+|---------------------------------|---------------------------------------|
 | **Output Component** | **Description** |
 | `visNetworkOutput("net")` | Interactive network showing colored clusters and filtered edges |
 | `verbatimTextOutput("info")` | Metadata of selected node (e.g., name, type, degree) |

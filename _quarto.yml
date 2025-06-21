@@ -8,7 +8,7 @@ website:
       - text: "Menu"
         menu:
         - text: "Project Proposal"
-          href: "project_proposal/proposal_DC.html"
+          href: "project_proposal/project_proposal.html"
         - text: "Report Draft (Main)"
           href: "main_project_qmd/main_project_qmd/main.html"
     right:

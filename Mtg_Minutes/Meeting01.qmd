@@ -1,0 +1,18 @@
+---
+title: "Minutes 1"
+description: ""
+author: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
+date: "22 May 2025"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# **Meeting Minutes 1**
+
+![](images/Under%20Construction.jpg)

@@ -11,6 +11,14 @@ website:
           href: "project_proposal/project_proposal.html"
         - text: "Report Draft (Main)"
           href: "main_project_qmd/main_project_qmd/main.html"
+      - text: "Meeting Minutes"
+        menu:
+        - text: "Meeting Minutes 1"
+          href: "Mtg_Minutes/Meeting01.html"
+        - text: "Meeting Minutes 2"
+          href: "Mtg_Minutes/Meeting02.html"
+        - text: "Meeting Minutes 3"
+          href: "Mtg_Minutes/Meeting03.html"
     right:
       - href: index.qmd
         text: Home

@@ -2,15 +2,15 @@ project:
   type: website
 
 website:
-  title: "ISSS608 Visual Analytics Project"
+  title: |
+    <img src="pictures/icon.jpg" height="25" style="vertical-align:middle; margin-right: 10px;">
+    ISSS608 VA Project - Group 12
   navbar:
     left:
-      - text: "Menu"
-        menu:
-        - text: "Project Proposal"
-          href: "project_proposal/project_proposal.html"
-        - text: "Report Draft (Main)"
-          href: "main_project_qmd/main_project_qmd/main.html"
+      - text: "Project Proposal"
+        href: "project_proposal/project_proposal.html"
+      - text: "Report Draft (Main)"
+        href: "main_project_qmd/main_project_qmd/main.html"
       - text: "Meeting Minutes"
         menu:
         - text: "Meeting Minutes 1"
@@ -19,6 +19,16 @@ website:
           href: "Mtg_Minutes/Meeting02.html"
         - text: "Meeting Minutes 3"
           href: "Mtg_Minutes/Meeting03.html"
+        - text: "Meeting Minutes 4"
+          href: "Mtg_Minutes/Meeting04.html"
+        - text: "Meeting Minutes 5"
+          href: "Mtg_Minutes/Meeting05.html"
+        - text: "Meeting Minutes 6"
+          href: "Mtg_Minutes/Meeting06.html"
+        - text: "Meeting Minutes 7"
+          href: "Mtg_Minutes/Meeting07.html"
+      - text: "SHINY app"
+        href: "https://cabbageliu.shinyapps.io/Group12_ShinyApp/"
     right:
       - href: index.qmd
         text: Home

@@ -1,9 +1,9 @@
 ---
-title: "Minutes 1"
+title: "Meeting Minutes 1"
 description: ""
 author: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
 date: "22 May 2025"
-date-modified: "last-modified"
+date-modified: "02 June 2025"
 format: html
 editor: visual
 execute: 
@@ -13,6 +13,29 @@ execute:
   freeze: true
 ---
 
-# **Meeting Minutes 1**
+**Date Conducted:** 01 June 2025
 
-![](images/Under%20Construction.jpg)
+**Meeting time:** 2100 hrs - 2200 hrs
+
+**Location:** Teams Meeting
+
+**Agenda on this meeting:**
+
+1.  Initial planning and discussions on the project
+2.  Deciding on what will be the contents of our SHINY app and how will it be done
+
+**What has been discussed during this meeting?**
+
+1.  Group discussion is mainly done during this period and this also marks as the initation of our SHINY app projects
+
+2.  We also cross checked and analysed our senior's work *(including the ones posted on the [Course website](https://isss608-ay2024-25apr.netlify.app/vaproject))* and discussed on the possible ways to do this project effectively
+
+**Preparing for next Meeting:**
+
+1.  Before this meeting concluded, all teams are to analyse the datasets thoroughly once again, and try to analyse what part of the dataset will be used for the project.
+
+2.  Also before the next team meeting, all team members are expected to think of at least one question per team member, and we will be discussing on who will answer what questions based on their own capabilities in the next team meeting.
+
+**Next Team Meeting**
+
+The next team meeting is expected to be held on the 4th of June, **online** via **Microsoft Teams**

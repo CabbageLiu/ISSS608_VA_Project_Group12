@@ -1,9 +1,9 @@
 ---
-title: "Minutes 2"
+title: "Meeting Minutes 2"
 description: ""
 author: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
 date: "22 May 2025"
-date-modified: "last-modified"
+date-modified: "05 June 2025"
 format: html
 editor: visual
 execute: 
@@ -13,6 +13,37 @@ execute:
   freeze: true
 ---
 
-# **Meeting Minutes 2**
+**Date Conducted:** 04 June 2025
 
-![](images/Under%20Construction.jpg)
+**Meeting time:** 2100hrs - 2300hrs
+
+**Location:** Teams Meeting
+
+**Agenda on this meeting:**
+
+1.  To continue discussion on the SHINY project
+2.  To analyse and discuss on the possible data that will be used for this project
+
+**What has been discussed during this meeting?**
+
+1.  Again We cross checked and analysed our senior's work *(including the ones posted on the [Course website](https://isss608-ay2024-25apr.netlify.app/vaproject))* and discussed on the possible ways to do this project effectively
+
+2.  After a few days of self analysis on the datasets and the questions, we discussed on the possible datasets that can be visualized and used in our SHINY application
+
+3.  We also discussed on the tasks of the team members, and based on the discussion, we have decided to split the tasks into the following:
+
+-   Liu Chih Yuan: He will be focusing on the codes especially for data cleaning and wrangling as this will be his main task for the project. He is also tasked to answer questions 1 and 4 of the project
+
+-   David Chiam: He will be tasked on working with question 2, however, once all team members have done answering their respective questions, David will be tasked to final check and finalise all the answer to ensure that the answers will be consolidated to the final project deliverables.
+
+-   Enrico Sebastian: He will be working on question 3. Furthermore, he will also work with both David and Chih Yuan for all documentations including the making of this meeting minutes.
+
+**Preparing for next Meeting:**
+
+1.  Now that the teams are assigned on their respective tasks, all team members are to prepare their answers and upload to the project git respitory.
+
+2.  We will also be discussing the outline of our SHINY application at the next team meeting
+
+**Next Team Meeting**
+
+The next team meeting is expected to be held **in person** at **Singapore Management University** on **June 8 2025** subject to any prevailing conditions

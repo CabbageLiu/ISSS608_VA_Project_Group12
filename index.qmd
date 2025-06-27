@@ -1,5 +1,5 @@
 ---
-title: "ISSS608 Visual Analytics Project: Group 12"
+title: " ISSS608 Visual Analytics Project by Group 12"
 date-modified: "last-modified"
 authors: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
 format: html

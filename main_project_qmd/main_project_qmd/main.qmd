@@ -3718,7 +3718,6 @@ interactive_plots_q2[[4]]
 ```
 :::
 
-
 # 10. - Task 3: Determine who uses pseudonyms and what they are using
 
 ## VAST Challenge Task & Question 3a

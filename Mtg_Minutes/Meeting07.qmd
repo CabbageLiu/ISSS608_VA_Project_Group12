@@ -1,0 +1,35 @@
+---
+title: "Meeting Minutes 7"
+description: ""
+author: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
+date: "22 May 2025"
+date-modified: "July 02 2025"
+format: html
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+**Date Conducted:** 01 July 2025
+
+**Meeting time:** 1500hrs - 1800hrs
+
+**Location:** Singapore Management University
+
+**Agenda on this meeting:**
+
+1.  To finalise the project poster
+2.  Rehearsal for final project townhall presentation
+
+**What has been discussed during this meeting?**
+
+1.  Today we will be first finalising our project poster
+
+2.  We will also make use of this meeting to ensure that the SHINY app works properly so that there will be no imminent flaws or errors when the app goes live
+
+**Next Team Meeting**
+
+This will officially be the last Team meeting for the SHINY app project; there will be no more team meetings scheduled due to [exam week](https://courses.smu.edu.sg/sites/courses.smu.edu.sg/files/PG%20Academic%20Calendars%20%28BRC%20Programmes%29%20AY2025-26_1.pdf)

@@ -1,0 +1,42 @@
+---
+title: "Meeting Minutes 5"
+description: ""
+author: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
+date: "22 May 2025"
+date-modified: "23 June 2025"
+format: html
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+**Date Conducted:** 22 June 2025
+
+**Meeting time:** 2100hrs - 2200hrs
+
+**Location:** Microsoft Teams Meeting
+
+**Agenda on this meeting:**
+
+1.  To monitor the progress of the SHINY app
+2.  To raise and determine any errors and flaws encountered by the team member
+
+**What has been discussed during this meeting?**
+
+1.  In this meeting our objective is to ensure that the everyone is aligned on their roles and resposibilities to ensure that the SHINY app will flow smoothly
+
+2.  We will also make use of this meeting to raise up any issues that the team has faced when doing their part
+
+3.  We also started discussion on our project poster design
+
+**Preparing for next Meeting:**
+
+1.  In the next meeting, we will be finalising our SHINY app
+2.  We will also start works on the project poster subject to the completion of the SHINY app
+
+**Next Team Meeting**
+
+The next team meeting is expected to be held **in-person** at **Singapore Management University** on **June 27 2025** subject to any prevailing conditions

@@ -1,0 +1,41 @@
+---
+title: "Meeting Minutes 6"
+description: ""
+author: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
+date: "22 May 2025"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+**Date Conducted:** 27 June 2025
+
+**Meeting time:** 1500hrs - 1800hrs
+
+**Location:** Microsoft Teams Meeting
+
+**Agenda on this meeting:**
+
+1.  To finalise the SHINY app
+2.  To start works on the SHINY app project poster
+
+**What has been discussed during this meeting?**
+
+1.  Today we will be first finalising our SHINY app and ensure that there is no imminent flaws or errors when the app goes live
+
+2.  We also started working on our project poster design
+
+**Preparing for next Meeting:**
+
+1.  In the next meeting, we will be finalising our poster project and submit the final poster onto elearn by the end of the meeting
+
+2.  We will also start rehearsing for our presentation day
+
+**Next Team Meeting**
+
+The next team meeting is expected to be held **in-person** at **Singapore Management University** on **July 1 2025** subject to any prevailing conditions

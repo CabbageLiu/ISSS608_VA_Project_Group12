@@ -770,22 +770,19 @@ visNetwork(nodes_q2, edges_q2, height = "700px", width = "100%") %>%
 ```
 
 \
-\
-\
 
 ```{r}
 library(tidytext)
-library(tidyr)
 library(dplyr)
 library(stringr)
 
-# Step 1: Get Louvain membership for each node
+# Step 1: Node-to-cluster mapping (based on your earlier setup)
 node_cluster_q2 <- data.frame(
-  label   = V(graph_comm_q2)$name,
+  label = V(graph_comm_q2)$name,
   cluster = clusters_q2$membership
 )
 
-# Step 2: Add sender/receiver cluster membership
+# Step 2: Merge sender/receiver cluster info into message dataset
 comm_with_cluster_q2 <- comm_full_q2 %>%
   filter(sender_type %in% c("Person", "Vessel"),
          receiver_type %in% c("Person", "Vessel")) %>%
@@ -794,7 +791,7 @@ comm_with_cluster_q2 <- comm_full_q2 %>%
   left_join(node_cluster_q2, by = c("receiver_label" = "label")) %>%
   rename(receiver_cluster = cluster)
 
-# Step 3: Pivot to long format
+# Step 3: Pivot to long format for clustering analysis
 comm_long_q2 <- comm_with_cluster_q2 %>%
   select(content, sender_cluster, receiver_cluster) %>%
   rename(message_content = content) %>%
@@ -802,7 +799,7 @@ comm_long_q2 <- comm_with_cluster_q2 %>%
                names_to = "role", values_to = "cluster") %>%
   filter(!is.na(cluster), !is.na(message_content))
 
-# Step 4: Tokenize and remove stopwords
+# Step 4: Tokenize words and remove stopwords
 data("stop_words")
 
 tokens_by_cluster_q2 <- comm_long_q2 %>%
@@ -810,79 +807,587 @@ tokens_by_cluster_q2 <- comm_long_q2 %>%
   filter(!word %in% stop_words$word, str_detect(word, "[a-z]")) %>%
   count(cluster, word, sort = TRUE)
 
-# Step 5: Top 20 keywords per cluster
+# Step 5: Get top 25 keywords per cluster
 top_keywords_q2 <- tokens_by_cluster_q2 %>%
   group_by(cluster) %>%
-  slice_max(n, n = 20, with_ties = FALSE) %>%
-  arrange(cluster, desc(n)) %>%
+  slice_max(n, n = 25, with_ties = FALSE) %>%
   ungroup()
-
-# Optional: Structure into list by cluster
-keyword_lists_q2 <- top_keywords_q2 %>%
-  group_by(cluster) %>%
-  group_split()
-
-names(keyword_lists_q2) <- paste0("Cluster_", sort(unique(top_keywords_q2$cluster)))
 
 ```
 
 \
 
 ```{r}
-library(gt)
+library(ggplot2)
+library(forcats)
 
-# Define color per cluster
-cluster_colors <- c(
-  "Cluster_1" = "#1f77b4",  # blue
-  "Cluster_2" = "#d62728",  # red
-  "Cluster_3" = "#2ca02c",  # green
-  "Cluster_4" = "#9467bd"   # purple
-)
+# Optional: Clean label for display
+top_keywords_q2$word <- str_to_title(top_keywords_q2$word)
 
-# Generate one gt table per cluster
-for (i in 1:4) {
-  cluster_df <- keyword_lists_q2[[i]]
-  cluster_name <- names(keyword_lists_q2)[i]
+# Plot
+ggplot(top_keywords_q2, aes(x = fct_reorder(word, n), y = n, fill = factor(cluster))) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  facet_wrap(~ cluster, scales = "free_y", ncol = 2) +
+  labs(
+    title = "Top 25 Keywords by Communication Cluster",
+    x = "Keyword", y = "Frequency"
+  ) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal(base_size = 12)
+
+```
+
+\
+\
+
+### Interactive Cluster-Filtered Keyword Table
+
+Use the dropdown filter at the top of the table to isolate individual communication clusters. The table presents the top 25 most used keywords per cluster based on message content, helping identify dominant language themes in each group’s exchanges.
+
+```{r}
+library(DT)
+library(dplyr)
+library(stringr)
+
+# Prepare interactive table
+top_keywords_q2 %>%
+  mutate(
+    Cluster = factor(paste0("Cluster ", cluster)),  # 🔽 Dropdown-friendly
+    Keyword = str_to_title(word),
+    Frequency = n
+  ) %>%
+  select(Cluster, Keyword, Frequency) %>%
+  datatable(
+    caption = htmltools::tags$caption(
+      style = 'caption-side: top; text-align: left; font-size: 18px; font-weight: bold;',
+      "Top Keywords by Communication Cluster"
+    ),
+    filter = "top",  # 🔽 Enables dropdown on top for factors
+    rownames = FALSE,
+    class = "compact stripe hover",
+    options = list(
+      pageLength = 10,
+      autoWidth = TRUE,
+      dom = 'Bfrtip',
+      buttons = c('copy', 'csv', 'excel'),
+      order = list(list(2, 'desc'))  # Default sort by Frequency
+    )
+  )
+
+```
+
+### 5.1.10 Interactive Top 25 Keywords by Cluster
+
+The following charts show the top 25 keywords used in communications by members of each cluster. Hover over each bar to see annotations for the keyword, frequency, and its cluster group. These visualizations help identify each group's focus and language patterns.
+
+::: panel-tabset
+## Cluster 1
+
+```{r}
+# --- Load Required Libraries ---
+library(dplyr)
+library(stringr)
+library(forcats)
+library(ggplot2)
+library(plotly)
+library(purrr)
+library(tidytext)
+
+# --- Step 1: Clean and Prepare the Keyword Data ---
+top_keywords_q2_cleaned <- top_keywords_q2 %>%
+  mutate(
+    cluster = as.factor(cluster),
+    word = str_to_title(word)  # Capitalize for display
+  )
+
+# --- Step 2: Split into Cluster-specific Data Frames ---
+keyword_lists_q2 <- top_keywords_q2_cleaned %>%
+  group_by(cluster) %>%
+  group_split()
+
+# Label each list with Cluster name
+names(keyword_lists_q2) <- paste0("Cluster ", levels(top_keywords_q2_cleaned$cluster))
+
+# --- Step 3: Define Function to Create Interactive Plot ---
+plot_cluster_keywords_interactive <- function(data, cluster_name) {
+  p <- ggplot(data, aes(
+    x = fct_reorder(word, n), 
+    y = n,
+    fill = cluster,
+    text = paste0(
+      "📌 Keyword: ", word,
+      "<br>📊 Count: ", n
+    )
+  )) +
+    geom_col(show.legend = FALSE) +  # Hide ggplot2 legend
+    coord_flip() +
+    labs(
+      title = paste("Top 25 Keywords in", cluster_name),
+      x = "", y = "Frequency"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme_minimal(base_size = 12)
   
-  cluster_df %>%
-    select(Word = word, Frequency = n) %>%
-    gt() %>%
-    tab_header(
-      title = md(paste0("**Top 20 Keywords – ", cluster_name, "**"))
-    ) %>%
-    tab_options(
-      table.width = pct(60),
-      heading.background.color = cluster_colors[cluster_name],
-      heading.align = "left"
-    ) %>%
-    cols_label(
-      Word = "Keyword",
-      Frequency = "Mentions"
-    ) %>%
-    data_color(
-      columns = vars(Frequency),
-      colors = scales::col_numeric(
-        palette = c("white", cluster_colors[cluster_name]),
-        domain = NULL
-      )
-    ) %>%
-    print()  # In Quarto, this auto-renders under each cluster
+  # Convert to plotly and hide legend again
+  ggplotly(p, tooltip = "text") %>%
+    layout(showlegend = FALSE)  # <- hides plotly legend
 }
+
+# --- Step 4: Generate All Interactive Plots in a List ---
+interactive_plots_q2 <- map2(keyword_lists_q2, names(keyword_lists_q2), plot_cluster_keywords_interactive)
+
+# --- Step 5: View or Output ---
+interactive_plots_q2[[1]]
+
+```
+
+## Cluster 2
+
+```{r}
+# --- Load Required Libraries ---
+library(dplyr)
+library(stringr)
+library(forcats)
+library(ggplot2)
+library(plotly)
+library(purrr)
+library(tidytext)
+
+# --- Step 1: Clean and Prepare the Keyword Data ---
+top_keywords_q2_cleaned <- top_keywords_q2 %>%
+  mutate(
+    cluster = as.factor(cluster),
+    word = str_to_title(word)  # Capitalize for display
+  )
+
+# --- Step 2: Split into Cluster-specific Data Frames ---
+keyword_lists_q2 <- top_keywords_q2_cleaned %>%
+  group_by(cluster) %>%
+  group_split()
+
+# Label each list with Cluster name
+names(keyword_lists_q2) <- paste0("Cluster ", levels(top_keywords_q2_cleaned$cluster))
+
+# --- Step 3: Define Function to Create Interactive Plot ---
+plot_cluster_keywords_interactive <- function(data, cluster_name) {
+  p <- ggplot(data, aes(
+    x = fct_reorder(word, n), 
+    y = n,
+    fill = cluster,
+    text = paste0(
+      "📌 Keyword: ", word,
+      "<br>📊 Count: ", n
+    )
+  )) +
+    geom_col(show.legend = FALSE) +  # Hide ggplot2 legend
+    coord_flip() +
+    labs(
+      title = paste("Top 25 Keywords in", cluster_name),
+      x = "", y = "Frequency"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme_minimal(base_size = 12)
+  
+  # Convert to plotly and hide legend again
+  ggplotly(p, tooltip = "text") %>%
+    layout(showlegend = FALSE)  # <- hides plotly legend
+}
+
+# --- Step 4: Generate All Interactive Plots in a List ---
+interactive_plots_q2 <- map2(keyword_lists_q2, names(keyword_lists_q2), plot_cluster_keywords_interactive)
+
+# --- Step 5: View or Output ---
+interactive_plots_q2[[2]]
+
+```
+
+## Cluster 3
+
+```{r}
+# --- Load Required Libraries ---
+library(dplyr)
+library(stringr)
+library(forcats)
+library(ggplot2)
+library(plotly)
+library(purrr)
+library(tidytext)
+
+# --- Step 1: Clean and Prepare the Keyword Data ---
+top_keywords_q2_cleaned <- top_keywords_q2 %>%
+  mutate(
+    cluster = as.factor(cluster),
+    word = str_to_title(word)  # Capitalize for display
+  )
+
+# --- Step 2: Split into Cluster-specific Data Frames ---
+keyword_lists_q2 <- top_keywords_q2_cleaned %>%
+  group_by(cluster) %>%
+  group_split()
+
+# Label each list with Cluster name
+names(keyword_lists_q2) <- paste0("Cluster ", levels(top_keywords_q2_cleaned$cluster))
+
+# --- Step 3: Define Function to Create Interactive Plot ---
+plot_cluster_keywords_interactive <- function(data, cluster_name) {
+  p <- ggplot(data, aes(
+    x = fct_reorder(word, n), 
+    y = n,
+    fill = cluster,
+    text = paste0(
+      "📌 Keyword: ", word,
+      "<br>📊 Count: ", n
+    )
+  )) +
+    geom_col(show.legend = FALSE) +  # Hide ggplot2 legend
+    coord_flip() +
+    labs(
+      title = paste("Top 25 Keywords in", cluster_name),
+      x = "", y = "Frequency"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme_minimal(base_size = 12)
+  
+  # Convert to plotly and hide legend again
+  ggplotly(p, tooltip = "text") %>%
+    layout(showlegend = FALSE)  # <- hides plotly legend
+}
+
+# --- Step 4: Generate All Interactive Plots in a List ---
+interactive_plots_q2 <- map2(keyword_lists_q2, names(keyword_lists_q2), plot_cluster_keywords_interactive)
+
+# --- Step 5: View or Output ---
+interactive_plots_q2[[3]]
+
+```
+
+## Cluster 4
+
+```{r}
+# --- Load Required Libraries ---
+library(dplyr)
+library(stringr)
+library(forcats)
+library(ggplot2)
+library(plotly)
+library(purrr)
+library(tidytext)
+
+# --- Step 1: Clean and Prepare the Keyword Data ---
+top_keywords_q2_cleaned <- top_keywords_q2 %>%
+  mutate(
+    cluster = as.factor(cluster),
+    word = str_to_title(word)  # Capitalize for display
+  )
+
+# --- Step 2: Split into Cluster-specific Data Frames ---
+keyword_lists_q2 <- top_keywords_q2_cleaned %>%
+  group_by(cluster) %>%
+  group_split()
+
+# Label each list with Cluster name
+names(keyword_lists_q2) <- paste0("Cluster ", levels(top_keywords_q2_cleaned$cluster))
+
+# --- Step 3: Define Function to Create Interactive Plot ---
+plot_cluster_keywords_interactive <- function(data, cluster_name) {
+  p <- ggplot(data, aes(
+    x = fct_reorder(word, n), 
+    y = n,
+    fill = cluster,
+    text = paste0(
+      "📌 Keyword: ", word,
+      "<br>📊 Count: ", n
+    )
+  )) +
+    geom_col(show.legend = FALSE) +  # Hide ggplot2 legend
+    coord_flip() +
+    labs(
+      title = paste("Top 25 Keywords in", cluster_name),
+      x = "", y = "Frequency"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme_minimal(base_size = 12)
+  
+  # Convert to plotly and hide legend again
+  ggplotly(p, tooltip = "text") %>%
+    layout(showlegend = FALSE)  # <- hides plotly legend
+}
+
+# --- Step 4: Generate All Interactive Plots in a List ---
+interactive_plots_q2 <- map2(keyword_lists_q2, names(keyword_lists_q2), plot_cluster_keywords_interactive)
+
+# --- Step 5: View or Output ---
+interactive_plots_q2[[4]]
+
+```
+:::
+
+\
+
+\
+\
+
+### 5.1.7 Interactive Cluster-Filtered Keyword Table
+
+Use the dropdown filter at the top of the table to isolate individual communication clusters. The table presents the top 20 most used keywords per cluster based on message content, helping identify dominant language themes in each group’s exchanges.
+
+```{r}
+library(DT)
+
+# Prepare table with readable cluster labels and formatted keywords
+top_keywords_q2 %>%
+  mutate(
+    Cluster  = paste0("Cluster ", cluster),
+    Keyword  = str_to_title(word),
+    Frequency = n
+  ) %>%
+  select(Cluster, Keyword, Frequency) %>%
+  datatable(
+    caption = htmltools::tags$caption(
+      style = 'caption-side: top; text-align: left; font-size: 18px; font-weight: bold;',
+      "Top Keywords by Communication Cluster"
+    ),
+    options = list(
+      pageLength = 10,
+      autoWidth = TRUE,
+      dom = 'Bfrtip',  # Search box, filter, table, pagination
+      buttons = c('copy', 'csv', 'excel'),
+      order = list(list(0, 'asc'), list(2, 'desc'))
+    ),
+    filter = "top",
+    rownames = FALSE,
+    class = "compact stripe hover"
+  )
+
+```
+
+```{r}
+library(DT)
+library(dplyr)
+library(stringr)
+
+# Prepare interactive table
+top_keywords_q2 %>%
+  mutate(
+    Cluster = factor(paste0("Cluster ", cluster)),  # 🔽 Dropdown-friendly
+    Keyword = str_to_title(word),
+    Frequency = n
+  ) %>%
+  select(Cluster, Keyword, Frequency) %>%
+  datatable(
+    caption = htmltools::tags$caption(
+      style = 'caption-side: top; text-align: left; font-size: 18px; font-weight: bold;',
+      "Top Keywords by Communication Cluster"
+    ),
+    filter = "top",  # 🔽 Enables dropdown on top for factors
+    rownames = FALSE,
+    class = "compact stripe hover",
+    options = list(
+      pageLength = 10,
+      autoWidth = TRUE,
+      dom = 'Bfrtip',
+      buttons = c('copy', 'csv', 'excel'),
+      order = list(list(2, 'desc'))  # Default sort by Frequency
+    )
+  )
+
+```
+
+```{r}
+# --- Load Required Libraries ---
+library(dplyr)
+library(stringr)
+library(forcats)
+library(ggplot2)
+library(plotly)
+library(purrr)
+library(tidytext)
+
+# --- Step 1: Clean and Prepare the Keyword Data ---
+top_keywords_q2_cleaned <- top_keywords_q2 %>%
+  mutate(
+    cluster = as.factor(cluster),
+    word = str_to_title(word)  # Capitalize for display
+  )
+
+# --- Step 2: Split into Cluster-specific Data Frames ---
+keyword_lists_q2 <- top_keywords_q2_cleaned %>%
+  group_by(cluster) %>%
+  group_split()
+
+# Label each list with Cluster name
+names(keyword_lists_q2) <- paste0("Cluster ", levels(top_keywords_q2_cleaned$cluster))
+
+# --- Step 3: Define Function to Create Interactive Plot ---
+plot_cluster_keywords_interactive <- function(data, cluster_name) {
+  p <- ggplot(data, aes(
+    x = fct_reorder(word, n), 
+    y = n,
+    fill = cluster,
+    text = paste0(
+      "📌 Keyword: ", word,
+      "<br>📊 Count: ", n
+    )
+  )) +
+    geom_col(show.legend = FALSE) +  # Hide ggplot2 legend
+    coord_flip() +
+    labs(
+      title = paste("Top 25 Keywords in", cluster_name),
+      x = "", y = "Frequency"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme_minimal(base_size = 12)
+  
+  # Convert to plotly and hide legend again
+  ggplotly(p, tooltip = "text") %>%
+    layout(showlegend = FALSE)  # <- hides plotly legend
+}
+
+# --- Step 4: Generate All Interactive Plots in a List ---
+interactive_plots_q2 <- map2(keyword_lists_q2, names(keyword_lists_q2), plot_cluster_keywords_interactive)
+
+# --- Step 5: View or Output ---
+# Example: Render the first plot (Cluster 1)
+interactive_plots_q2[[1]]
+
 
 ```
 
 \
 \
 \
+
+```{r}
+library(ggplot2)
+library(forcats)
+library(dplyr)
+library(stringr)
+library(purrr)
+
+# Prepare and clean data
+top_keywords_q2_cleaned <- top_keywords_q2 %>%
+  mutate(
+    cluster = as.factor(cluster),
+    word = str_to_title(word)
+  )
+
+# Split into list of data frames by cluster
+keyword_lists_q2 <- top_keywords_q2_cleaned %>%
+  group_by(cluster) %>%
+  group_split()
+
+# Name each list element (for use in titles)
+names(keyword_lists_q2) <- paste0("Cluster ", levels(top_keywords_q2_cleaned$cluster))
+
+# Function to plot for one cluster
+plot_cluster_keywords <- function(data, cluster_name) {
+  ggplot(data, aes(x = fct_reorder(word, n), y = n, fill = cluster)) +
+    geom_col(show.legend = FALSE) +
+    coord_flip() +
+    labs(
+      title = paste("Top Keywords in", cluster_name),
+      x = "Keyword", y = "Frequency"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme_minimal(base_size = 12)
+}
+
+# Apply plotting function to each cluster
+plots_q2 <- map2(keyword_lists_q2, names(keyword_lists_q2), plot_cluster_keywords)
+
+plots_q2[[1]]
+plots_q2[[2]]
+plots_q2[[3]]
+plots_q2[[4]]
+```
+
+```{r}
+# --- Load Required Libraries ---
+library(dplyr)
+library(stringr)
+library(forcats)
+library(ggplot2)
+library(plotly)
+library(purrr)
+library(tidytext)
+
+# --- Step 1: Clean and Prepare the Keyword Data ---
+top_keywords_q2_cleaned <- top_keywords_q2 %>%
+  mutate(
+    cluster = as.factor(cluster),
+    word = str_to_title(word)  # Capitalize for display
+  )
+
+# --- Step 2: Split into Cluster-specific Data Frames ---
+keyword_lists_q2 <- top_keywords_q2_cleaned %>%
+  group_by(cluster) %>%
+  group_split()
+
+# Label each list with Cluster name
+names(keyword_lists_q2) <- paste0("Cluster ", levels(top_keywords_q2_cleaned$cluster))
+
+# --- Step 3: Define Function to Create Interactive Plot ---
+plot_cluster_keywords_interactive <- function(data, cluster_name) {
+  p <- ggplot(data, aes(
+    x = fct_reorder(word, n), 
+    y = n,
+    fill = cluster,
+    text = paste0(
+      "📌 Keyword: ", word,
+      "<br>📊 Frequency: ", n
+    )
+  )) +
+    geom_col(show.legend = FALSE) +
+    coord_flip() +
+    labs(
+      title = paste("Top Keywords in", cluster_name),
+      x = "Keyword", y = "Frequency"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme_minimal(base_size = 12)
+  
+  # Convert to plotly
+  ggplotly(p, tooltip = "text")
+}
+
+# --- Step 4: Generate All Interactive Plots in a List ---
+interactive_plots_q2 <- map2(keyword_lists_q2, names(keyword_lists_q2), plot_cluster_keywords_interactive)
+
+# --- Step 5: View or Output ---
+# Example: Render the first plot (Cluster 1)
+interactive_plots_q2[[1]]
+
+# To view all:
+ for (p in interactive_plots_q2) print(p)
+```
+
 \
-\
-\
-\
-\
-\
-\
-\
-\
+
+```{r}
+library(ggplot2)
+library(forcats)
+
+# Format & order
+top_keywords_q2 <- top_keywords_q2 %>%
+  mutate(
+    word = str_to_title(word),
+    cluster = as.factor(cluster)
+  )
+
+ggplot(top_keywords_q2, aes(x = fct_reorder2(word, cluster, n), y = n, fill = cluster)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  facet_wrap(~ cluster, scales = "free_y", ncol = 2) +
+  labs(
+    title = "Top 25 Keywords by Communication Cluster",
+    x = "Keyword", y = "Frequency"
+  ) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal(base_size = 12)
+
+```
+
 \
 \
 \

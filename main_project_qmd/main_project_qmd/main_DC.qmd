@@ -3054,6 +3054,521 @@ visNetwork(nodes_walktrap, edges_format, width = "100%", height = "750px") %>%
 
 ```
 
+Step 1 – Apply Community Detection
+
+Use `group_louvain()` or `group_walktrap()` to assign a `community` label to each node in `mc3_graph`.
+
+```{r}
+mc3_graph <- mc3_graph %>%
+  mutate(community = group_walktrap())
+
+```
+
+### **Step 2 – Summarize Clusters**
+
+Group nodes by `community` and summarize:
+
+-   Number of nodes
+-   Most common entity types
+-   Frequent terms in `label`
+-   Possibly extract `description` or message context (if available)
+
+```{r}
+mc3_communities <- mc3_graph %>%
+  as_tibble() %>%
+  group_by(community) %>%
+  summarise(
+    size = n(),
+    top_types = toString(head(sort(table(type), decreasing = TRUE), 3)),
+    sample_labels = paste(head(label, 5), collapse = ", ")
+  )
+
+```
+
+### **Step 3 – Assign Themes to Communities**
+
+Use rules or manual inspection:
+
+-   If a cluster contains “Reef”, “Green Guardians”, etc. → **Environmentalism**
+-   If it contains “Sailor Shift”, “Crew”, “Media” → **Entertainment**
+-   If vessel-heavy → **Fishing/Transport**
+
+```{r}
+cluster_theme_map <- tibble(
+  community = c(1, 2, 3),
+  theme = c("Environmentalism", "Entertainment", "Fishing & Leisure")
+)
+
+```
+
+### **Step 4 – Visualize Thematic Clusters**
+
+Use `ggraph` or `visNetwork`:
+
+-   Color by **theme** instead of just `type` or `community`
+-   Add legend to clarify mapping
+-   Label central nodes per group (e.g., based on degree)
+
+```{r}
+# Optional: Create a theme mapping table (adjust based on your actual labels)
+theme_lookup <- tibble(
+  community = c(1, 2, 3, 4, 5),  # replace with your actual community IDs
+  theme = c("Environmentalism", "Entertainment", "Fishing", "Leisure", "Mixed")
+)
+
+# Join theme labels to node data
+mc3_graph <- mc3_graph %>%
+  left_join(theme_lookup, by = "community")
+
+# Plot with ggraph (coloring by theme)
+set.seed(1234)
+ggraph(mc3_graph, layout = "fr") +
+  geom_edge_link(alpha = 0.2, colour = "grey70") +
+  geom_node_point(aes(color = theme), size = 3) +
+  geom_node_text(aes(label = ifelse(degree(graph = mc3_graph) > 4, label, "")),
+                 repel = TRUE, size = 3, color = "black") +
+  scale_color_viridis_d(name = "Thematic Group") +
+  theme_void() +
+  labs(title = "Community-Thematic Clustering of Entities")
+
+```
+
+### Step 5: Output Summary Table of Thematic Clusters
+
+```{r}
+# Prepare summary table for output
+mc3_summary_table <- mc3_graph %>%
+  as_tibble() %>%
+  group_by(community, theme) %>%
+  summarise(
+    nodes = n(),
+    dominant_types = toString(head(sort(table(type), decreasing = TRUE), 3)),
+    sample_labels = paste(head(label, 5), collapse = ", "),
+    .groups = "drop"
+  )
+
+# Print as a clean table
+print(mc3_summary_table)
+
+# Optionally display using DT for interactivity
+library(DT)
+datatable(mc3_summary_table,
+          options = list(pageLength = 5),
+          rownames = FALSE)
+
+```
+
+```{r}
+# Step 0: Check column names of your edges and nodes
+colnames(mc3_edges_cleaned)  # Should include 'from' and 'to'
+colnames(mc3_nodes_cleaned)  # Should include 'id'
+
+```
+
+```{r}
+## --- Community Detection and Topic Summary for Q2b ---
+
+library(tidygraph)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(forcats)
+library(purrr)
+
+# Step 1: Rename edge columns and filter invalid rows
+edges_graph_ready <- mc3_edges_cleaned %>%
+  rename(from = from_id, to = to_id) %>%
+  filter(!is.na(from), !is.na(to)) %>%
+  filter(from %in% mc3_nodes_cleaned$id & to %in% mc3_nodes_cleaned$id)
+
+# Step 2: Create tidygraph object
+tg_graph <- tbl_graph(nodes = mc3_nodes_cleaned, edges = edges_graph_ready, directed = TRUE)
+
+# Step 3: Community Detection (Louvain and Walktrap)
+tg_graph <- tg_graph %>%
+  mutate(
+    community_louvain = as.factor(group_louvain()),
+    community_walktrap = as.factor(group_walktrap())
+  )
+
+# Step 4: Join node metadata
+graph_nodes_df <- as_tibble(tg_graph) %>%
+  left_join(mc3_nodes_cleaned, by = c("name" = "id"))
+
+# Step 5: Helper function to extract top N non-empty values
+get_top_terms <- function(column, n = 5) {
+  column %>%
+    as.character() %>%
+    str_trim() %>%
+    discard(~ is.na(.) | . == "" | . == "NA") %>%
+    table() %>%
+    sort(decreasing = TRUE) %>%
+    head(n) %>%
+    names()
+}
+
+# Step 6: Summarize dominant topic areas per Louvain community
+topic_summary_louvain <- graph_nodes_df %>%
+  group_by(community_louvain) %>%
+  summarise(
+    top_findings = paste(get_top_terms(findings), collapse = ", "),
+    top_content = paste(get_top_terms(content), collapse = ", "),
+    top_results = paste(get_top_terms(results), collapse = ", "),
+    top_activity = paste(get_top_terms(activity_type), collapse = ", "),
+    top_friendship = paste(get_top_terms(friendship_type), collapse = ", "),
+    top_type = paste(get_top_terms(type), collapse = ", "),
+    sample_labels = paste(get_top_terms(label), collapse = ", "),
+    n_entities = n()
+  ) %>%
+  arrange(desc(n_entities))
+
+# Step 7: Print the summary
+topic_summary_louvain
+
+
+```
+
+```{r}
+# Check structure and preview edge data
+glimpse(mc3_edges_cleaned)
+
+# Show first few rows
+head(mc3_edges_cleaned)
+
+# Count NAs in from_id and to_id
+mc3_edges_cleaned %>%
+  summarise(
+    total_rows = n(),
+    missing_from = sum(is.na(from_id)),
+    missing_to   = sum(is.na(to_id)),
+    invalid_from = sum(!(from_id %in% mc3_nodes_cleaned$id)),
+    invalid_to   = sum(!(to_id %in% mc3_nodes_cleaned$id))
+  )
+
+```
+
+```{r}
+# Check structure and ID preview
+glimpse(mc3_nodes_cleaned)
+
+# Show first few IDs
+head(mc3_nodes_cleaned$id)
+
+# Confirm it's character
+typeof(mc3_nodes_cleaned$id)
+
+```
+
+```{r}
+# Just keep only from, to, and optionally edge 'type' (if needed)
+edges_graph_ready <- mc3_edges_cleaned %>%
+  rename(from = from_id, to = to_id) %>%
+  filter(!is.na(from), !is.na(to)) %>%
+  filter(from %in% mc3_nodes_cleaned$id & to %in% mc3_nodes_cleaned$id) %>%
+  select(from, to, type)  # Drop everything else for now
+
+```
+
+```{r}
+tg_graph <- tbl_graph(nodes = mc3_nodes_cleaned, edges = edges_graph_ready, directed = TRUE)
+
+```
+
+```{r}
+# Step 1: Identify non-character or non-logical edge columns
+mc3_edges_cleaned %>%
+  summarise(across(everything(), ~class(.)))
+
+```
+
+```{r}
+# Step 2: Identify any rows with NaN (not just NA)
+mc3_edges_cleaned %>%
+  filter(if_any(everything(), ~ any(is.nan(.))))
+
+```
+
+\
+
+```{r}
+# Step 1: Create minimal clean node table (id + label only)
+nodes_clean <- mc3_nodes_cleaned %>%
+  select(id, label) %>%
+  distinct() %>%
+  filter(!is.na(id) & id != "")
+
+# Step 2: Create clean edge table with only from + to
+edges_clean <- mc3_edges_cleaned %>%
+  rename(from = from_id, to = to_id) %>%
+  select(from, to) %>%
+  filter(!is.na(from), !is.na(to)) %>%
+  filter(from %in% nodes_clean$id & to %in% nodes_clean$id)
+
+# Step 3: Try to build the graph
+tg_graph <- tbl_graph(nodes = nodes_clean, edges = edges_clean, directed = TRUE)
+
+
+```
+
+```{r}
+## --- Final Clean Pipeline for Community Detection & Topic Profiling (Q2b) ---
+
+library(tidygraph)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(forcats)
+library(purrr)
+
+# Step 1: Use full node metadata directly
+nodes_graph <- mc3_nodes_cleaned %>%
+  filter(!is.na(id) & id != "") %>%
+  mutate(name = id)
+
+edges_graph <- mc3_edges_cleaned %>%
+  rename(from = from_id, to = to_id) %>%
+  filter(!is.na(from), !is.na(to)) %>%
+  filter(from %in% nodes_graph$id & to %in% nodes_graph$id)
+
+# Step 2: Build graph with metadata included
+tg_graph <- tbl_graph(nodes = nodes_graph, edges = edges_graph, directed = TRUE) %>%
+  convert(to_undirected) %>%
+  mutate(
+    community_louvain = as.factor(group_louvain()),
+    community_walktrap = as.factor(group_walktrap())
+  )
+
+# Step 3: Apply community detection
+graph_nodes_df <- as_tibble(tg_graph)
+
+
+# Step 4: Join full metadata for topic profiling
+graph_nodes_df <- as_tibble(tg_graph) %>%
+  left_join(mc3_nodes_cleaned, by = c("name" = "id"))
+
+# Step 5: Define helper to extract top terms
+get_top_terms <- function(column, n = 3) {
+  tryCatch({
+    column %>%
+      as.character() %>%
+      suppressWarnings(str_trim(.)) %>%
+      discard(~ is.na(.) | . == "" | . == "NA") %>%
+      table() %>%
+      sort(decreasing = TRUE) %>%
+      head(n) %>%
+      names()
+  }, error = function(e) {
+    return(character(0))
+  })
+}
+
+# Step 6: Summarize dominant topic areas per Louvain community
+topic_summary_louvain <- graph_nodes_df %>%
+  group_by(community_louvain) %>%
+  nest() %>%
+  mutate(
+    top_findings   = map_chr(data, ~ {
+      terms <- get_top_terms(.x$findings)
+      if (length(terms) == 0) "(none)" else paste(terms, collapse = ", ")
+    }),
+    top_content    = map_chr(data, ~ {
+      terms <- get_top_terms(.x$content)
+      if (length(terms) == 0) "(none)" else paste(terms, collapse = ", ")
+    }),
+    top_results    = map_chr(data, ~ {
+      terms <- get_top_terms(.x$results)
+      if (length(terms) == 0) "(none)" else paste(terms, collapse = ", ")
+    }),
+    top_activity   = map_chr(data, ~ {
+      terms <- get_top_terms(.x$activity_type)
+      if (length(terms) == 0) "(none)" else paste(terms, collapse = ", ")
+    }),
+    top_friendship = map_chr(data, ~ {
+      terms <- get_top_terms(.x$friendship_type)
+      if (length(terms) == 0) "(none)" else paste(terms, collapse = ", ")
+    }),
+    top_type       = map_chr(data, ~ {
+      terms <- get_top_terms(.x$type)
+      if (length(terms) == 0) "(none)" else paste(terms, collapse = ", ")
+    }),
+    n_entities     = map_int(data, nrow)
+  ) %>%
+  select(-data) %>%
+  arrange(desc(n_entities))
+
+
+# Step 7: Display topic summary table
+topic_summary_louvain
+
+```
+
+```{r}
+graph_nodes_df %>%
+  filter(!is.na(content) & content != "") %>%
+  count(community_louvain) %>%
+  arrange(desc(n))
+
+
+```
+
+```{r}
+# Step 1: Extract node-community mapping
+node_communities <- as_tibble(tg_graph) %>%
+  select(name, community_louvain) %>%
+  mutate(name = as.character(name))
+
+# Step 2: Prepare edge list with sender and receiver community
+edges_with_comm <- mc3_edges_cleaned %>%
+  rename(from = from_id, to = to_id) %>%
+  left_join(node_communities, by = c("from" = "name")) %>%
+  rename(from_comm = community_louvain) %>%
+  left_join(node_communities, by = c("to" = "name")) %>%
+  rename(to_comm = community_louvain)
+
+# Step 3: Keep only intra-community edges (from and to in same Louvain group)
+intra_comm_edges <- edges_with_comm %>%
+  filter(!is.na(from_comm), from_comm == to_comm)
+
+# Step 4: Group and summarize top terms from edge metadata
+get_top_terms <- function(column, n = 5) {
+  tryCatch({
+    column %>%
+      as.character() %>%
+      suppressWarnings(str_trim(.)) %>%
+      discard(~ is.na(.) | . == "" | . == "NA") %>%
+      table() %>%
+      sort(decreasing = TRUE) %>%
+      head(n) %>%
+      names()
+  }, error = function(e) character(0))
+}
+
+# Step 5: Summarize topic areas per community
+topic_summary_from_edges <- intra_comm_edges %>%
+  group_by(community = from_comm) %>%
+  summarise(
+    top_findings   = paste(get_top_terms(findings), collapse = ", "),
+    top_content    = paste(get_top_terms(content), collapse = ", "),
+    top_results    = paste(get_top_terms(results), collapse = ", "),
+    top_activity   = paste(get_top_terms(activity_type), collapse = ", "),
+    top_type       = paste(get_top_terms(type), collapse = ", "),
+    n_messages     = n()
+  ) %>%
+  arrange(desc(n_messages))
+
+# Step 6: Display
+topic_summary_from_edges
+
+```
+
+## Totally Brand New Question 2 Answers.
+
+```{r}
+library(jsonlite)
+library(tidygraph)
+library(igraph)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(stringr)
+
+# Load the full knowledge graph
+q2b_json <- jsonlite::read_json("MC3_graph.json", simplifyVector = TRUE)
+
+# Extract nodes and edges
+q2b_nodes_raw <- q2b_json$nodes
+q2b_edges_raw <- q2b_json$edges
+
+# Combine all node types into one tibble
+q2b_nodes <- bind_rows(
+  q2b_nodes_raw$Entity,
+  q2b_nodes_raw$Event,
+  q2b_nodes_raw$Relationship
+) %>%
+  filter(!is.na(id)) %>%
+  distinct(id, .keep_all = TRUE)
+
+# Combine all edge types into one tibble
+q2b_edges <- bind_rows(
+  q2b_edges_raw$`Entity->Event`,
+  q2b_edges_raw$`Event->Entity`,
+  q2b_edges_raw$`Entity->Relationship`,
+  q2b_edges_raw$`Relationship->Entity`,
+  q2b_edges_raw$`Event->Event`,
+  q2b_edges_raw$`Event->Relationship`
+) %>%
+  rename(from = from_id, to = to_id) %>%
+  filter(!is.na(from) & !is.na(to))
+
+```
+
+```{r}
+names(q2b_nodes_raw)
+
+map(q2b_nodes_raw, ~ if (is.null(.x)) "NULL" else glimpse(.x))
+
+```
+
+\
+
+```{r}
+# STEP 1: Use already-clean node table
+q2b_nodes <- q2b_nodes_raw  # Already a flat data.frame with all metadata
+
+# Check for essential ID column
+stopifnot("id" %in% colnames(q2b_nodes))
+
+# STEP 2: Load edge data again from the original JSON file
+library(jsonlite)
+q2b_json <- read_json("MC3_graph.json", simplifyVector = TRUE)
+q2b_edges_raw <- q2b_json$edges
+
+# Combine edge subtypes into one tibble (new object name)
+q2b_edges <- bind_rows(
+  q2b_edges_raw$`Entity->Event`,
+  q2b_edges_raw$`Event->Entity`,
+  q2b_edges_raw$`Entity->Relationship`,
+  q2b_edges_raw$`Relationship->Entity`,
+  q2b_edges_raw$`Event->Event`,
+  q2b_edges_raw$`Event->Relationship`
+) %>%
+  rename(from = from_id, to = to_id) %>%
+  filter(!is.na(from), !is.na(to))
+
+
+
+```
+
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+
 # 10. - Task 3: Determine who uses pseudonyms and what they are using
 
 ## VAST Challenge Task & Question 3a
@@ -3118,7 +3633,7 @@ pseudonym_graph <- tbl_graph(
 )
 ```
 
-Before we start to answer the questions, let us first test out if the data cleaning is effective, which should be if not you wil not be able to see this!
+Before we start to answer the questions, let us first test out if the data cleaning is effective, which should be if not you will not be able to see this!
 
 ::: panel-tabset
 **Test code**

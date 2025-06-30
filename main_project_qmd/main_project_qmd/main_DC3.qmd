@@ -1,0 +1,901 @@
+---
+title: "VAST Challenge 2025 - Mini-Challenge 3"
+author: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
+date: "June 20, 2025"
+date-modified: "last-modified"
+format: html
+code-fold: true
+code-summary: "Show code"
+execute: 
+  eval: true        # run code 
+  echo: true         # show code 
+  warning: false     #warning msg wont come out
+  freeze: true      #speed up rendering time
+---
+
+# 1. Background
+
+This take home exercise is based on the [VAST Challenge Mini Case 3](https://vast-challenge.github.io/2025/MC3.html)
+
+Over the past decade, the community of Oceanus has faced numerous transformations and challenges evolving from its fishing-centric origins. Following major crackdowns on illegal fishing activities, suspects have shifted investments into more regulated sectors such as the ocean tourism industry, resulting in growing tensions. This increased tourism has recently attracted the likes of international pop star Sailor Shift, who announced plans to film a music video on the island.
+
+Clepper Jessen, a former analyst at FishEye and now a seasoned journalist for the Hacklee Herald, has been keenly observing these rising tensions. Recently, he turned his attention towards the temporary closure of Nemo Reef. By listening to radio communications and utilizing his investigative tools, Clepper uncovered a complex web of expedited approvals and secretive logistics. These efforts revealed a story involving high-level Oceanus officials, Sailor Shift’s team, local influential families, and local conservationist group The Green Guardians, pointing towards a story of corruption and manipulation.
+
+Your task is to develop new and novel visualizations and visual analytics approaches to help Clepper get to the bottom of this story
+
+# 2. Load Package
+
+```{r}
+## Load Libraries
+pacman::p_load(tidyverse, jsonlite, tidygraph, ggraph, lubridate, SmartEDA, igraph, dplyr, viridis, ggrepel, scales)
+
+## Load Graph and Schema
+MC3 <- fromJSON("data/MC3_release/MC3_graph.json")
+MC3_schema <- fromJSON("data/MC3_release/MC3_schema.json")
+
+glimpse(MC3)
+```
+
+# 3. Clean and Transform Data
+
+```{r}
+mc3_nodes <- as_tibble(MC3$nodes)
+mc3_edges <- as_tibble(MC3$edges)
+```
+
+## 3.1 Initial EDA
+
+```{r}
+#ExpCatViz(data=mc3_nodes,
+#          col="pink")
+```
+
+# 4. Data Cleaning and Wrangling
+
+Code chunk below performs the following data cleaning tasks:
+
+-   convert values in id field into character data type,
+
+-   exclude records with `id` value are na,
+
+-   exclude records with similar id values,
+
+-   exclude `thing_collected` field, and
+
+-   save the cleaned tibble dataframe into a new tibble datatable called `mc3_nodes_cleaned`.
+
+```{r}
+mc3_nodes_cleaned <- mc3_nodes %>%
+  mutate(id = as.character(id)) %>%
+  filter(!is.na(id)) %>%
+  distinct(id, .keep_all = TRUE) %>%
+  select(-thing_collected)
+```
+
+Next, the code chunk below will be used to:
+
+-   rename source and target fields to from_id and to_id respectively,
+
+-   convert values in from_id and to_id fields to character data type,
+
+-   exclude values in from_id and to_id which not found in the id field of mc3_nodes_cleaned,
+
+-   exclude records whereby from_id and/or to_id values are missing, and
+
+-   save the cleaned tibble dataframe and called it mc3_edges_cleaned.
+
+```{r}
+mc3_edges_cleaned <- mc3_edges %>%
+  rename(from_id = source, 
+         to_id = target) %>%
+  mutate(across(c(from_id, to_id), 
+                as.character)) %>%
+  filter(from_id %in% mc3_nodes_cleaned$id, 
+         to_id %in% mc3_nodes_cleaned$id) %>%
+  filter(!is.na(from_id), !is.na(to_id))
+```
+
+Next, code chunk below will be used to create mapping of character id in `mc3_nodes_cleaned` to row index
+
+```{r}
+node_index_lookup <- mc3_nodes_cleaned %>%
+  mutate(.row_id = row_number()) %>%
+  select(id, .row_id)
+```
+
+Next, the code chunk below will be used to join and convert `from_id` and `to_id` to integer indices. At the same time we also drop rows with unmatched nodes.
+
+```{r}
+mc3_edges_indexed <- mc3_edges_cleaned %>%
+  left_join(node_index_lookup, 
+            by = c("from_id" = "id")) %>%
+  rename(from = .row_id) %>%
+  left_join(node_index_lookup, 
+            by = c("to_id" = "id")) %>%
+  rename(to = .row_id) %>%
+  select(from, to, is_inferred, type) %>%
+  filter(!is.na(from) & !is.na(to))  
+```
+
+Next the code chunk below is used to subset nodes to only those referenced by edges.
+
+```{r}
+used_node_indices <- sort(
+  unique(c(mc3_edges_indexed$from, 
+           mc3_edges_indexed$to)))
+
+mc3_nodes_final <- mc3_nodes_cleaned %>%
+  slice(used_node_indices) %>%
+  mutate(new_index = row_number())
+```
+
+We will then use the code chunk below to rebuild lookup from old index to new index.
+
+```{r}
+old_to_new_index <- tibble(
+  old_index = used_node_indices,
+  new_index = seq_along(
+    used_node_indices))
+```
+
+Lastly, the code chunk below will be used to update edge indices to match new node table.
+
+```{r}
+mc3_edges_final <- mc3_edges_indexed %>%
+  left_join(old_to_new_index, 
+            by = c("from" = "old_index")) %>%
+  rename(from_new = new_index) %>%
+  left_join(old_to_new_index, 
+            by = c("to" = "old_index")) %>%
+  rename(to_new = new_index) %>%
+  select(from = from_new, to = to_new, 
+         is_inferred, type)
+```
+
+# 5. Building `tidygraph` object
+
+```{r}
+mc3_graph <- tbl_graph(
+  nodes = mc3_nodes_final,
+  edges = mc3_edges_final,
+  directed = TRUE
+)
+```
+
+```{r}
+str(mc3_graph)
+```
+
+# 6. EDA
+
+Setting seed for reproducibility
+
+```{r}
+set.seed(1818)
+```
+
+## 6.1 Relationship between entities and events
+
+```{r}
+ggraph(mc3_graph, 
+       layout = "fr") +
+  geom_edge_link(alpha = 0.3, 
+                 colour = "gray") +
+  geom_node_point(aes(color = `type`), 
+                  size = 2) +
+  geom_node_text(aes(label = type), 
+                 repel = TRUE, 
+                 size = 2.5) +
+  theme_void()
+```
+
+## 6.2 Entity distribution
+
+```{r}
+# Define color mapping
+subtype_colors <- c(
+  "Person" = "#2ca5ff",
+  "Organization" = "#f5ee15",
+  "Vessel" = "#FB7E81",
+  "Group" = "#25e158",
+  "Location" = "#ec4bff"
+)
+
+mc3_nodes_final %>%
+  filter(type == "Entity") %>%
+  count(sub_type, sort = TRUE) %>%
+  ggplot(aes(x = reorder(sub_type, n), y = n, fill = sub_type)) +
+  geom_col() +
+  coord_flip() +
+  geom_text(aes(label = n), hjust = -0.1) +
+  labs(title = "Entity Sub-type Distribution", x = "Sub-type", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+## 6.3 Event type distribution
+
+```{r}
+mc3_nodes_final %>%
+  filter(type == "Event") %>%
+  count(sub_type, sort = TRUE) %>%
+  ggplot(aes(x = reorder(sub_type, n), y = n, fill = sub_type)) +
+  geom_col() +
+  coord_flip() +
+  geom_text(aes(label = n), hjust = -0.1) +
+  labs(title = "Event Sub-type Distribution", x = "Sub-type", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+## 6.4 List of communication participants
+
+```{r}
+library(DT)
+
+# Step 1: Get all Communication Event IDs
+comm_event_ids <- mc3_nodes_cleaned %>%
+  filter(type == "Event", sub_type == "Communication") %>%
+  pull(id)
+
+# Step 2: Extract 'sent' edges for communication events
+comm_sent_edges <- mc3_edges_cleaned %>%
+  filter(type == "sent", to_id %in% comm_event_ids) %>%
+  select(comm_id = to_id, sender_id = from_id)
+
+# Step 3: Extract 'received' edges for same communication events
+comm_received_edges <- mc3_edges_cleaned %>%
+  filter(type == "received", from_id %in% comm_event_ids) %>%
+  select(comm_id = from_id, receiver_id = to_id)
+
+# Step 4: Join sent and received edges by communication ID
+comm_pairs <- comm_sent_edges %>%
+  inner_join(comm_received_edges, by = "comm_id")
+
+# Step 5: Add sender and receiver labels
+participants_named <- comm_pairs %>%
+  left_join(mc3_nodes_cleaned %>% select(id, sender_label = label), by = c("sender_id" = "id")) %>%
+  left_join(mc3_nodes_cleaned %>% select(id, receiver_label = label), by = c("receiver_id" = "id"))
+
+
+
+# Step7: Interactive summary of top sender–receiver pairs
+participants_named %>%
+  count(sender_label, receiver_label, sort = TRUE) %>%
+  datatable(
+    caption = "Top Communication Pairs (Sender → Receiver)",
+    colnames = c("Sender", "Receiver", "Message Count"),
+    options = list(pageLength = 10, autoWidth = TRUE),
+    rownames = FALSE
+  )
+```
+
+## 6.4.1 Visualization of communication participants network
+
+This code creates an **interactive communication network graph** using `visNetwork`, where:
+
+-   Each **node** represents a person or entity, **node size** is based on total messages **sent** by that participant.
+
+-   Each **edge (arrow)** represents a communication sent from one participant to another, the thicker the edge, the more message sent to that particular receiver.
+
+**Ver 1: Layout_in_circle**
+
+```{r}
+library(visNetwork)
+
+# Step 1: Summarize communication edges
+comm_edges_vis <- participants_named %>%
+  count(sender_id, receiver_id, sort = TRUE) %>%
+  rename(from = sender_id, to = receiver_id, value = n)
+
+# Step 2: Compute messages sent per node
+message_counts <- comm_edges_vis %>%
+  group_by(from) %>%
+  summarise(sent_count = sum(value), .groups = "drop")
+
+# Step 3: Prepare nodes, merge with message count and add color/shape
+nodes_vis <- mc3_nodes_cleaned %>%
+  filter(id %in% unique(c(comm_edges_vis$from, comm_edges_vis$to))) %>%
+  select(id, label, sub_type) %>%
+  left_join(message_counts, by = c("id" = "from")) %>%
+  mutate(
+    sent_count = replace_na(sent_count, 0),
+    size = rescale(sent_count, to = c(10, 40)),
+    title = paste0(label, "<br>Sub-type: ", sub_type,
+                   ifelse(!is.na(sent_count), paste0("<br>Sent: ", sent_count, " messages"), "")),
+    color = case_when(
+      sub_type == "Person" ~ "#2ca5ff",
+      sub_type == "Organization" ~ "#f5ee15",
+      sub_type == "Vessel" ~ "#FB7E81",
+      sub_type == "Group" ~ "#25e158",
+      sub_type == "Location" ~ "#ec4bff",
+      TRUE ~ "black"
+    ),
+    shape = case_when(
+      sub_type == "Person" ~ "dot",
+      sub_type == "Organization" ~ "square",
+      sub_type == "Vessel" ~ "triangle",
+      sub_type == "Group" ~ "star",
+      sub_type == "Location" ~ "diamond",
+      TRUE ~ "dot"
+    ),
+  ) %>%
+  arrange(desc(size))
+
+# Step 4: Format visNetwork edges
+edges_vis <- comm_edges_vis %>%
+  mutate(
+    arrows = "to",
+    width = rescale(value, to = c(1, 6)),
+    title = paste("Messages:", value)
+  )
+
+# Step 5: Define legend items
+legend_nodes <- data.frame(
+  label = c("Person", "Organization", "Vessel", "Group", "Location"),
+  color = c("#2ca5ff", "#f5ee15", "#FB7E81", "#25e158", "#ec4bff"),
+  shape = c("dot", "square", "triangle", "star", "diamond"),
+  stringsAsFactors = FALSE
+)
+
+# Step 6: Render network with legend
+visNetwork(nodes_vis, edges_vis, width = "100%", height = "1000px") %>%
+  visNodes(
+    size = nodes_vis$size
+    # color and shape are picked up from nodes_vis columns automatically
+  ) %>%
+  visLegend(
+    addNodes = lapply(1:nrow(legend_nodes), function(i) {
+      list(
+        label = legend_nodes$label[i],
+        shape = legend_nodes$shape[i],
+        color = legend_nodes$color[i]
+      )
+    }),
+    useGroups = FALSE,
+    width = 0.15
+  ) %>%
+  visEdges(smooth = FALSE) %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+  visIgraphLayout(layout = "layout_in_circle") %>%
+  visPhysics(enabled = FALSE) %>%
+  visLayout(randomSeed = 1818)
+```
+
+**Ver 2: Layout_on_sphere**
+
+From this plot, it reveals that some pairs (e.g., Miranda Jordan and Clepper Jensen) mainly communicate with each other, suggesting isolated or private channels outside the broader network.
+
+```{r}
+library(visNetwork)
+
+# Step 1: Summarize communication edges
+comm_edges_vis <- participants_named %>%
+  count(sender_id, receiver_id, sort = TRUE) %>%
+  rename(from = sender_id, to = receiver_id, value = n)
+
+# Step 2: Compute messages sent per person (by sender)
+message_counts <- comm_edges_vis %>%
+  group_by(from) %>%
+  summarise(sent_count = sum(value), .groups = "drop")
+
+# Step 3: Prepare nodes with label, subtype, color, shape, and scaled size
+nodes_vis <- mc3_nodes_cleaned %>%
+  filter(id %in% unique(c(comm_edges_vis$from, comm_edges_vis$to))) %>%
+  select(id, label, sub_type) %>%
+  left_join(message_counts, by = c("id" = "from")) %>%
+  mutate(
+    size = if_else(
+      sub_type == "Person",
+      rescale(sent_count, to = c(10, 40), na.rm = TRUE),
+      15
+    ),
+    title = paste0(label, "<br>Sub-type: ", sub_type,
+                   ifelse(!is.na(sent_count), paste0("<br>Sent: ", sent_count, " messages"), "")),
+    color = case_when(
+      sub_type == "Person" ~ "#2ca5ff",
+      sub_type == "Organization" ~ "#f5ee15",
+      sub_type == "Vessel" ~ "#FB7E81",
+      sub_type == "Group" ~ "#25e158",
+      sub_type == "Location" ~ "#ec4bff",
+      TRUE ~ "black"
+    ),
+    shape = case_when(
+      sub_type == "Person" ~ "dot",
+      sub_type == "Organization" ~ "square",
+      sub_type == "Vessel" ~ "triangle",
+      sub_type == "Group" ~ "star",
+      sub_type == "Location" ~ "diamond",
+      TRUE ~ "dot"
+    )
+  )
+
+# Step 4: Format edges
+edges_vis <- comm_edges_vis %>%
+  mutate(
+    arrows = "to",
+    width = rescale(value, to = c(1, 6)),
+    title = paste("Messages:", value)
+  )
+
+# Step 5: Legend mapping
+legend_nodes <- data.frame(
+  label = c("Person", "Organization", "Vessel", "Group", "Location"),
+  color = c("#2ca5ff", "#f5ee15", "#FB7E81", "#25e158", "#ec4bff"),
+  shape = c("dot", "square", "triangle", "star", "diamond"),
+  stringsAsFactors = FALSE
+)
+
+# Step 6: Render the network with layout_on_sphere and legend
+visNetwork(nodes_vis, edges_vis, width = "100%", height = "900px") %>%
+  visNodes(
+    size = nodes_vis$size
+    # color and shape columns are automatically used
+  ) %>%
+  visLegend(
+    addNodes = lapply(1:nrow(legend_nodes), function(i) {
+      list(
+        label = legend_nodes$label[i],
+        shape = legend_nodes$shape[i],
+        color = legend_nodes$color[i]
+      )
+    }),
+    useGroups = FALSE,
+    width = 0.15
+  ) %>%
+  visEdges(smooth = FALSE) %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+  visIgraphLayout(layout = "layout_on_sphere") %>%
+  visPhysics(enabled = FALSE) %>%
+  visLayout(randomSeed = 1818)
+```
+
+```{r}
+# === Load libraries ===
+library(jsonlite)
+library(dplyr)
+library(tidyr)
+library(tidygraph)
+library(purrr)
+
+# === Step 1: Load from MC3_graph.json ===
+q2_json <- read_json("MC3_graph.json", simplifyVector = TRUE)
+
+# Convert the nodes correctly (flat list → data frame)
+q2_nodes_raw <- as_tibble(q2_json$nodes)  # Already flattened
+
+# Clean nodes
+q2_nodes_cleaned <- q2_nodes_raw %>%
+  mutate(id = as.character(id)) %>%
+  filter(!is.na(id)) %>%
+  distinct(id, .keep_all = TRUE) %>%
+  select(-thing_collected)
+
+# Edges: all types
+q2_edges_raw <- bind_rows(
+  q2_json$edges$`Entity->Event`,
+  q2_json$edges$`Event->Entity`,
+  q2_json$edges$`Entity->Relationship`,
+  q2_json$edges$`Relationship->Entity`,
+  q2_json$edges$`Event->Event`,
+  q2_json$edges$`Event->Relationship`
+)
+
+# === Step 2: Clean Nodes ===
+q2_edges_raw <- as_tibble(q2_json$edges)
+
+q2_edges_cleaned <- q2_edges_raw %>%
+  rename(from_id = source, to_id = target) %>%
+  mutate(across(c(from_id, to_id), as.character)) %>%
+  filter(from_id %in% q2_nodes_cleaned$id,
+         to_id %in% q2_nodes_cleaned$id) %>%
+  filter(!is.na(from_id), !is.na(to_id))
+
+# === Step 3: Clean Edges ===
+q2_edges_cleaned <- q2_edges_raw %>%
+  rename(from_id = source, to_id = target) %>%
+  mutate(across(c(from_id, to_id), as.character)) %>%
+  filter(from_id %in% q2_nodes_cleaned$id,
+         to_id %in% q2_nodes_cleaned$id) %>%
+  filter(!is.na(from_id), !is.na(to_id))
+
+# === Step 4: Build index lookup ===
+q2_node_index <- q2_nodes_cleaned %>%
+  mutate(.row_id = row_number()) %>%
+  select(id, .row_id)
+
+# === Step 5: Join edge IDs to node index ===
+q2_edges_indexed <- q2_edges_cleaned %>%
+  left_join(q2_node_index, by = c("from_id" = "id")) %>%
+  rename(from = .row_id) %>%
+  left_join(q2_node_index, by = c("to_id" = "id")) %>%
+  rename(to = .row_id) %>%
+  select(from, to, is_inferred, type) %>%
+  filter(!is.na(from), !is.na(to))
+
+# === Step 6: Subset nodes that are used in edges ===
+q2_used_node_ids <- sort(unique(c(q2_edges_indexed$from, q2_edges_indexed$to)))
+
+q2_nodes_final <- q2_nodes_cleaned %>%
+  slice(q2_used_node_ids) %>%
+  mutate(new_index = row_number())
+
+# === Step 7: Remap old indices in edges to new ones ===
+q2_index_remap <- tibble(
+  old_index = q2_used_node_ids,
+  new_index = seq_along(q2_used_node_ids)
+)
+
+q2_edges_final <- q2_edges_indexed %>%
+  left_join(q2_index_remap, by = c("from" = "old_index")) %>%
+  rename(from_new = new_index) %>%
+  left_join(q2_index_remap, by = c("to" = "old_index")) %>%
+  rename(to_new = new_index) %>%
+  select(from = from_new, to = to_new, is_inferred, type)
+
+# === Step 8: Build tidygraph ===
+q2_graph <- tbl_graph(
+  nodes = q2_nodes_final,
+  edges = q2_edges_final,
+  directed = TRUE
+)
+```
+
+### Filtering Communication Events
+
+To begin our analysis of interaction patterns, we first isolate only the **communication-related events** from the full knowledge graph. These are represented in the dataset as nodes where `type` is `"Event"` and the `sub_type` is `"Communication"`. These nodes correspond to actual **radio or verbal exchanges** logged in the system.
+
+This filtering step ensures that we focus solely on the **core transmission of information** between entities — ignoring unrelated events such as movements, assessments, or reporting.
+
+The resulting subset `comm_events_q2` serves as the **foundation for identifying who communicated with whom** in the subsequent steps of our analysis.
+
+```{r}
+comm_events_q2 <- q2_nodes_final %>%
+  filter(type == "Event", sub_type == "Communication")
+```
+
+### Extracting Essential Communication Fields
+
+With our subset of communication events (`comm_events_q2`) identified, we now extract only the essential fields required for downstream analysis:
+
+-   `id`: The unique identifier of each communication event node
+-   `timestamp`: The time the message was logged
+-   `content`: The body of the message, which may contain names, vessel references, or pseudonyms
+
+This produces a concise working table focused on the **core attributes** needed to trace interactions and perform text-based analysis. The `content` column, in particular, will play a critical role in revealing **pseudonymous references** and **frequently co-mentioned entities**, which are key to uncovering influence patterns and answering Question 2b and 3a.
+
+In the next step, we will **standardize the timestamp** for use in time-based charts and aggregations.
+
+```{r}
+comm_events_q2 <- comm_events_q2 %>%
+  select(id, timestamp = timestamp, content = content)
+
+```
+
+### Converting Timestamps to Datetime Format
+
+The `timestamp` field in our `comm_events_q2` table was originally stored as a character string. To support **time-based analysis** such as daily trends, hourly grouping, or temporal filtering, we convert the timestamp into a proper datetime object using the `ymd_hms()` function from the `lubridate` package.
+
+This transformation standardizes all timestamps into **POSIXct format**, making them compatible with datetime-based operations in `ggplot2`, `dplyr`, and `ggraph`.
+
+With properly formatted timestamps, we can now begin linking these communication records to their **sender and receiver** nodes — using the knowledge graph's edge table.
+
+```{r}
+library(lubridate)
+
+comm_events_q2 <- comm_events_q2 %>%
+  mutate(timestamp = ymd_hms(timestamp))
+
+```
+
+### Filtering Edges for Sender and Receiver Links
+
+To map who sent and received each communication, we filter the edge list to retain only those records where `type` is either `"sent"` or `"received"`. These denote **directional communication connections** between entities and events.
+
+In this structure: - `source` refers to the initiating entity (e.g., a person or vessel) - `target` refers to the communication event (a node of type `Event`) - `type` indicates whether the action was a message being sent or received
+
+This refined subset, `comm_edges_q2`, will allow us to **join communication event nodes to their participants**. In the next step, we will reshape this edge list into a format where each communication row includes both the **sender and receiver** — an essential structure for downstream interaction visualizations and pseudonym detection.
+
+```{r}
+comm_edges_q2 <- q2_edges_raw %>%
+  filter(type %in% c("sent", "received")) %>%
+  select(source, target, type)
+
+```
+
+### Separating Senders and Receivers
+
+We now divide the directional communication edges into two distinct subsets — one representing **message senders**, and the other **message receivers**. This separation is based on the `type` of the edge (`"sent"` or `"received"`):
+
+-   In the `senders_q2` table, the `source` node is the **entity who sent** the message, and the `target` is the message node.
+-   In the `receivers_q2` table, the `target` node is the **entity who received** the message, and the `source` is the message node.
+
+By renaming the shared message node to a common field (`message_id`), we create a consistent schema across both tables. This setup enables us to perform a join in the next step, reconstructing complete sender–receiver paths for each communication.
+
+This representation is crucial for: - Mapping direct communication flows (Q2a) - Identifying alias usage and common message pathways (Q3a)
+
+```{r}
+# Separate senders
+senders_q2 <- comm_edges_q2 %>%
+  filter(type == "sent") %>%
+  rename(sender = source, message_id = target)
+
+# Separate receivers
+receivers_q2 <- comm_edges_q2 %>%
+  filter(type == "received") %>%
+  rename(receiver = target, message_id = source)
+
+```
+
+### Creating Sender–Receiver Pairs
+
+Now that we have separated sender and receiver records, we join them using the common `message_id`. This produces a structure where each row represents one complete communication:
+
+-   `sender`: the entity that initiated the message
+-   `receiver`: the entity that received it
+-   `message_id`: the identifier of the communication event
+
+This `comm_pairs_q2` table becomes the core **person-to-person interaction dataset**, enabling us to build networks, identify frequent message paths, and trace potential alias usage.
+
+In the next step, we enrich this with **timestamp and message content** to fully contextualize each interaction.
+
+```{r}
+# Join on message_id
+comm_pairs_q2 <- inner_join(senders_q2, receivers_q2, by = "message_id")
+```
+
+### Adding Message Content and Timing
+
+To complete our interaction data, we join the sender–receiver pairs with the original communication event records. This adds two critical fields:
+
+-   `timestamp`: when the message occurred (in POSIXct datetime format)
+-   `content`: the actual text or subject of the message
+
+This full dataset, `comm_full_q2`, allows us to: - Trace **who messaged whom**, **when**, and **what was said** - Detect clusters or frequently interacting groups (Q2b) - Identify **pseudonym usage or name overlaps** (Q3a)
+
+It also prepares us to build structured network visualizations and perform deeper temporal or semantic analysis.
+
+```{r}
+# Combine with content and timestamp
+comm_full_q2 <- comm_pairs_q2 %>%
+  left_join(comm_events_q2, by = c("message_id" = "id"))
+
+```
+
+### Resolving Official Labels for Senders and Receivers
+
+To ensure clarity in our visualizations and pseudonym analysis, we join readable labels and subtypes to both the sender and receiver entities. We create a lookup table, `entity_labels_q2`, that contains:
+
+-   `id`: unique identifier
+-   `label`: human-readable name (e.g., “Kelly”, “Sailor Shift”)
+-   `sub_type`: whether the entity is a Person, Vessel, Organization, etc.
+
+This join is critical to: - Accurately label nodes in network plots - Normalize ambiguous or reused IDs - Track patterns of **alias reuse** across different messages
+
+```{r}
+entity_labels_q2 <- q2_nodes_final %>%
+  filter(type == "Entity") %>%
+  select(id, label, sub_type)
+```
+
+### Enriching with Entity Labels and Preparing for Network Construction
+
+To finalize the communication dataset, we join readable `label` and `sub_type` attributes for both **senders** and **receivers**. This eliminates ambiguity around entity IDs and provides a human-readable structure that includes:
+
+-   `sender_label` and `receiver_label` (e.g., "Nadia Conti", "The Intern")
+-   `sender_type` and `receiver_type` (e.g., Person, Vessel)
+-   Message `content` and `timestamp`
+
+This enriched table, `comm_full_q2`, now forms the basis for constructing our communication network and detecting social clusters — all **without the need to export to CSV**. The dataset remains in memory and feeds directly into the interactive visualization engine.
+
+```{r}
+# Join readable labels and subtypes
+comm_full_q2 <- comm_full_q2 %>%
+  left_join(entity_labels_q2, by = c("sender" = "id")) %>%
+  rename(sender_label = label, sender_type = sub_type) %>%
+  left_join(entity_labels_q2, by = c("receiver" = "id")) %>%
+  rename(receiver_label = label, receiver_type = sub_type)
+```
+
+\
+
+## Question 2 – Communication Network & Group Detection
+
+To analyze the structure of intercepted messages, we construct an interactive network where nodes represent individuals and vessels, and edges represent direct communication. Each directed edge indicates a message from a **sender** to a **receiver**, derived from parsed radio transmissions.
+
+### Key Features of the Network Visualization
+
+-   **Node Labels:** Names and aliases are displayed directly, enabling entity recognition at a glance.
+-   **Edge Direction:** Arrows show message flow (who talked to whom).
+-   **Node Size:** Reflects message volume (total sent + received).
+-   **Tooltip:** Shows exact count of messages sent and received per entity.
+-   **Coloring & Grouping:** Louvain clustering reveals distinct communication groups — possibly corresponding to factions like *Green Guardians*, *Sailor Shift’s entourage*, or suspicious vessels.
+-   **Filtering Controls:** Users can interactively isolate individuals or entire communities.
+-   **Navigation UI:** Built-in zoom, pan, and full-view support helps explore dense areas.
+
+This visualization directly addresses: - **Q2a**: Mapping who communicates with whom - **Q2b**: Detecting distinct communication groups
+
+The structure suggests coordinated behavior among subsets of individuals, likely reflecting underlying roles, affiliations, or orchestrated activity. These clusters warrant deeper investigation in the context of known suspects and potential pseudonym usage.
+
+```{r}
+library(igraph)
+library(visNetwork)
+
+# Step 0: Filter person ↔ vessel/entity messages
+edge_list_q2 <- comm_full_q2 %>%
+  filter(sender_type %in% c("Person", "Vessel"),
+         receiver_type %in% c("Person", "Vessel")) %>%
+  filter(!is.na(sender_label) & !is.na(receiver_label)) %>%
+  count(sender_label, receiver_label, name = "weight")
+
+# Step 1: igraph object
+graph_comm_q2 <- graph_from_data_frame(edge_list_q2, directed = TRUE)
+
+# Step 2: Convert to undirected before Louvain
+graph_comm_q2_undirected <- as.undirected(graph_comm_q2, mode = "collapse")
+clusters_q2 <- cluster_louvain(graph_comm_q2_undirected)
+
+# Step 3: Node degrees
+deg_out_q2 <- degree(graph_comm_q2, mode = "out")
+deg_in_q2  <- degree(graph_comm_q2, mode = "in")
+
+# Step 4: Nodes with cluster and interactivity
+nodes_q2 <- data.frame(
+  id    = V(graph_comm_q2)$name,
+  label = V(graph_comm_q2)$name,
+  title = paste0("📤 Sent: ", deg_out_q2, "<br>📥 Received: ", deg_in_q2),
+  group = paste("Cluster", clusters_q2$membership),
+  value = deg_out_q2 + deg_in_q2
+)
+
+# Step 5: Edges with arrows
+edges_q2 <- data.frame(
+  from   = as_edgelist(graph_comm_q2)[, 1],
+  to     = as_edgelist(graph_comm_q2)[, 2],
+  arrows = "to"
+)
+
+# Step 6: Render interactive network
+visNetwork(nodes_q2, edges_q2, height = "700px", width = "100%") %>%
+  visOptions(
+    highlightNearest = TRUE,
+    selectedBy = list(variable = "group", multiple = FALSE, main = "Select by cluster"),
+    nodesIdSelection = list(enabled = TRUE, main = "Select by entity")
+  ) %>%
+  visLegend() %>%
+  visPhysics(solver = "forceAtlas2Based", stabilization = TRUE) %>%
+  visInteraction(navigationButtons = TRUE) %>%
+  visLayout(randomSeed = 42)
+
+```
+
+\
+\
+\
+
+```{r}
+library(tidytext)
+library(tidyr)
+library(dplyr)
+library(stringr)
+
+# Step 1: Get Louvain membership for each node
+node_cluster_q2 <- data.frame(
+  label   = V(graph_comm_q2)$name,
+  cluster = clusters_q2$membership
+)
+
+# Step 2: Add sender/receiver cluster membership
+comm_with_cluster_q2 <- comm_full_q2 %>%
+  filter(sender_type %in% c("Person", "Vessel"),
+         receiver_type %in% c("Person", "Vessel")) %>%
+  left_join(node_cluster_q2, by = c("sender_label" = "label")) %>%
+  rename(sender_cluster = cluster) %>%
+  left_join(node_cluster_q2, by = c("receiver_label" = "label")) %>%
+  rename(receiver_cluster = cluster)
+
+# Step 3: Pivot to long format
+comm_long_q2 <- comm_with_cluster_q2 %>%
+  select(content, sender_cluster, receiver_cluster) %>%
+  rename(message_content = content) %>%
+  pivot_longer(cols = c(sender_cluster, receiver_cluster),
+               names_to = "role", values_to = "cluster") %>%
+  filter(!is.na(cluster), !is.na(message_content))
+
+# Step 4: Tokenize and remove stopwords
+data("stop_words")
+
+tokens_by_cluster_q2 <- comm_long_q2 %>%
+  unnest_tokens(word, message_content) %>%
+  filter(!word %in% stop_words$word, str_detect(word, "[a-z]")) %>%
+  count(cluster, word, sort = TRUE)
+
+# Step 5: Top 20 keywords per cluster
+top_keywords_q2 <- tokens_by_cluster_q2 %>%
+  group_by(cluster) %>%
+  slice_max(n, n = 20, with_ties = FALSE) %>%
+  arrange(cluster, desc(n)) %>%
+  ungroup()
+
+# Optional: Structure into list by cluster
+keyword_lists_q2 <- top_keywords_q2 %>%
+  group_by(cluster) %>%
+  group_split()
+
+names(keyword_lists_q2) <- paste0("Cluster_", sort(unique(top_keywords_q2$cluster)))
+
+```
+
+\
+
+```{r}
+library(gt)
+
+# Define color per cluster
+cluster_colors <- c(
+  "Cluster_1" = "#1f77b4",  # blue
+  "Cluster_2" = "#d62728",  # red
+  "Cluster_3" = "#2ca02c",  # green
+  "Cluster_4" = "#9467bd"   # purple
+)
+
+# Generate one gt table per cluster
+for (i in 1:4) {
+  cluster_df <- keyword_lists_q2[[i]]
+  cluster_name <- names(keyword_lists_q2)[i]
+  
+  cluster_df %>%
+    select(Word = word, Frequency = n) %>%
+    gt() %>%
+    tab_header(
+      title = md(paste0("**Top 20 Keywords – ", cluster_name, "**"))
+    ) %>%
+    tab_options(
+      table.width = pct(60),
+      heading.background.color = cluster_colors[cluster_name],
+      heading.align = "left"
+    ) %>%
+    cols_label(
+      Word = "Keyword",
+      Frequency = "Mentions"
+    ) %>%
+    data_color(
+      columns = vars(Frequency),
+      colors = scales::col_numeric(
+        palette = c("white", cluster_colors[cluster_name]),
+        domain = NULL
+      )
+    ) %>%
+    print()  # In Quarto, this auto-renders under each cluster
+}
+
+```
+
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\

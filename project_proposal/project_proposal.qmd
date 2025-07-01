@@ -290,7 +290,7 @@ This supports investigation workflows such as:
 By embedding this alongside the network graph, the application delivers both **relational context** and **tabulated drilldown** capabilities, bridging visual insight with attribute-level data access.
 
 | UI Component | Purpose |
-|----------------------------------|--------------------------------------|
+|----|----|
 | `selectInput("algo")` | Choose detection algorithm (Louvain/Walktrap) |
 | `checkboxGroupInput("type")` | Filter node types (person, vessel, place) |
 | `sliderInput("weight")` | Filter connections below weight threshold |
@@ -310,7 +310,7 @@ To make the Shiny application more engaging and insightful, we expand beyond cor
 ### User Inputs:
 
 |  |  |
-|----------------------------------|--------------------------------------|
+|----|----|
 | **Input Control** | **Description** |
 | `selectInput("algo")` | Community detection method selector (Louvain or Walktrap) |
 | `checkboxGroupInput("type")` | Entity type filter (Person, Vessel, Place) |
@@ -323,7 +323,7 @@ To make the Shiny application more engaging and insightful, we expand beyond cor
 ### Application Outputs:
 
 |  |  |
-|---------------------------------|---------------------------------------|
+|----|----|
 | **Output Component** | **Description** |
 | `visNetworkOutput("net")` | Interactive network showing colored clusters and filtered edges |
 | `verbatimTextOutput("info")` | Metadata of selected node (e.g., name, type, degree) |

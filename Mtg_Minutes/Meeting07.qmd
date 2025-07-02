@@ -2,7 +2,7 @@
 title: "Meeting Minutes 7"
 description: ""
 author: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
-date: "22 May 2025"
+date: "01 June 2025"
 date-modified: "July 02 2025"
 format: html
 editor: visual

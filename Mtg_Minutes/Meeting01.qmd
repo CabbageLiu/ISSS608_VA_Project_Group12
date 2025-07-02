@@ -12,6 +12,7 @@ execute:
   warning: false
   freeze: true
 ---
+
 **Date Conducted:** 1 June 2025
 
 **Meeting time:** 1600hrs - 1800 hrs
@@ -20,21 +21,20 @@ execute:
 
 **Agenda on this meeting:**
 
-1. To read the materials and requirements on the SHINY project
-2. To start initial discussions on the project
+1.  To read the materials and requirements on the SHINY project
+2.  To start initial discussions on the project
 
 **What has been discussed during this meeting?**
 
 1.  In this meeting we will be reviewing the project guidelines and refer to our senior's past works on the project to gather ideas on how the project will look like
 
-2. We also looked at each other's Take Home Exercise 02 and we determined if our answers well aligns with the project expectations. We determined that it would be best to redo the questions again as our answers and visualisations are not really aligned with each other.
+2.  We also looked at each other's Take Home Exercise 02 and we determined if our answers well aligns with the project expectations. We determined that it would be best to redo the questions again as our answers and visualisations are not really aligned with each other.
 
 **Preparing for next Meeting:**
 
-1. In the next meeting, we will be continuing on the discussions on the project
-2. We will also be discussing on what needs to be done in the project by assigning our roles
+1.  In the next meeting, we will be continuing on the discussions on the project
+2.  We will also be discussing on what needs to be done in the project by assigning our roles
 
 **Next Team Meeting**
 
 The next team meeting is expected to be held **online** via **Microsoft Teams Meeting** on **June 5 2025** subject to any prevailing conditions
-

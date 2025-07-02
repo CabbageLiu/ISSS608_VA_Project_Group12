@@ -11,6 +11,7 @@ library(ggrepel)
 library(scales)
 library(DT)
 library(visNetwork)
+library(plotly)
 
 # ─── Load and Clean Data ────────────────────────────────────────────────
 MC3 <- fromJSON("Data/MC3_graph.json")
@@ -246,10 +247,6 @@ ui <- navbarPage(
            )
   ),
   
-  # ─── Background Tab ──────────────────────────────────────────────────
-  tabPanel("Background",
-           htmlOutput("background_html")
-  ),
   
   # ─── EDA Tab ──────────────────────────────────────────────────────────
   tabPanel("EDA",

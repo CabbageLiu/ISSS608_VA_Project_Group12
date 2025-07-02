@@ -19,6 +19,9 @@ website:
           href: "Mtg_Minutes/Meeting02.html"
         - text: "Meeting Minutes 3"
           href: "Mtg_Minutes/Meeting03.html"
+      - text: "Our Poster"
+        href: "Project_poster/poster.html"
+      
     right:
       - href: index.qmd
         text: Home

@@ -1,16 +1,11 @@
 ---
-title: "Our Poster"
+title: "Our Project Poster"
 description: ""
 author: "David Chiam, Enrico Sebastian, Liu Chih Yuan"
-date: "22 May 2025"
+date: "22 June 2025"
 date-modified: "last-modified"
 format: html
 editor: visual
-execute: 
-  eval: true
-  echo: true
-  warning: false
-  freeze: true
 ---
 
-![](pictures/poster.png)
+![](Poster (Ver_Final).png){fig-align="center"}
